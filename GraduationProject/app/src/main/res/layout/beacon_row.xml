@@ -1,21 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_margin="10dp"
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/device_name"
-        android:layout_width="match_parent"
+        android:id="@+id/minor"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:textSize="20dp"
-        android:text="device_name"/>
-
+        android:gravity="center"
+        android:text="minor"/>
     <TextView
         android:id="@+id/rssi"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
         android:layout_height="wrap_content"
         android:textSize="20dp"
         android:text="rssi"/>
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="0dp"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:text="dist"/>
+    <TextView
+        android:id="@+id/ratio"
+        android:layout_width="0dp"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:text="dist"/>
 
 </LinearLayout>

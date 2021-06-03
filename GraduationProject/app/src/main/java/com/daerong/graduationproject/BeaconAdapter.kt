@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daerong.graduationproject.databinding.BeaconRowBinding
 import com.minew.beaconset.MinewBeacon
 
-class BeaconAdapter(var list : ArrayList<MinewBeacon>):RecyclerView.Adapter<BeaconAdapter.ViewHolder>() {
+class BeaconAdapter(var list : ArrayList<BeaconData>):RecyclerView.Adapter<BeaconAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: BeaconRowBinding):RecyclerView.ViewHolder(binding.root){
 
@@ -21,7 +21,9 @@ class BeaconAdapter(var list : ArrayList<MinewBeacon>):RecyclerView.Adapter<Beac
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.deviceName.text = list[position].deviceId
+        holder.binding.minor.text = list[position].minor
         holder.binding.rssi.text = list[position].rssi.toString()
+        holder.binding.distance.text = list[position].dist.toString()
+        holder.binding.ratio.text = list[position].ratio.toString()
     }
 }
