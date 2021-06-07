@@ -27,8 +27,19 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mMinewBeaconManager : MinewBeaconManager
     lateinit var beaconAdapter: BeaconAdapter
-    val scope = CoroutineScope(Dispatchers.Main)
+    val bA = BeaconLocation(0.0,0.0)
+    val bB = BeaconLocation(0.0,1.0)
+    val bC = BeaconLocation(1.0,0.5)
+    var distanceA:Double = 0.0
+    var distanceB:Double = 0.0
+    var distanceC:Double = 0.0
+    var isAUseful:Boolean = false
+    var isBUseful:Boolean = false
+    var isCUseful:Boolean = false
+    var beaconCount = 0
 
+
+    val scope = CoroutineScope(Dispatchers.Main)
     var sumOrigin : Double = 0.0
     var sumTrans : Double = 0.0
     val alpha = 0.25
@@ -41,10 +52,6 @@ class MainActivity : AppCompatActivity() {
         binding.beaconBtn.setOnClickListener {
             init()
         }
-
-
-
-
     }
 
     private fun batterySetting(){
@@ -78,15 +85,36 @@ class MainActivity : AppCompatActivity() {
                         scope.launch {
                             binding.beaconList.smoothScrollToPosition(0)
                         }
-                        Log.d("beacon_value","device id : ${it.deviceId}")
-                        Log.d("beacon_value","rssi : ${it.rssi.toString()}")
-                        Log.d("beacon_value","txpower : ${it.txpower.toString()}")
+                        //Log.d("beacon_value","device id : ${it.deviceId}")
+                        //Log.d("beacon_value","rssi : ${it.rssi.toString()}")
+                        //Log.d("beacon_value","txpower : ${it.txpower.toString()}")
                         Log.d("beacon_value","distance : ${it.distance.toString()}")
-                        Log.d("beacon_value","macAddress : ${it.macAddress}")
+                        //Log.d("beacon_value","macAddress : ${it.macAddress}")
                         Log.d("beacon_value","minor : ${it.minor}")
-                        Log.d("beacon_value","uuid : ${it.uuid}")
+                        //Log.d("beacon_value","uuid : ${it.uuid}")
                         //Log.d("beacon_value","uuid ${it.uuid}")
                         //Log.d("beacon_value","name ${it.name}")
+                        when(it.minor){
+                            "52291"->{
+                                distanceA = it.distance.toDouble()
+                                isAUseful = distanceA<10
+                                Log.d("beaconOn","minor : ${it.minor}, useful : $isAUseful, distance : $distanceA")
+                            }
+                            "52292"->{
+                                distanceB = it.distance.toDouble()
+                                isBUseful = distanceB<10
+                                Log.d("beaconOn","minor : ${it.minor}, useful : $isBUseful, distance : $distanceB")
+                            }
+                            "52284"->{
+                                distanceC = it.distance.toDouble()
+                                isCUseful = distanceC<10
+                                Log.d("beaconOn","minor : ${it.minor}, useful : $isCUseful, distance : $distanceC")
+                            }
+                        }
+                        if(isAUseful and isBUseful and isCUseful){
+                            val new = getLocationWithTrilateration(bA, bB, bC, distanceA, distanceB, distanceC)
+                            Log.d("BeaconLocation : ", "x : ${new.x}, y : ${new.y}")
+                        }
 
 
 
@@ -153,5 +181,36 @@ class MainActivity : AppCompatActivity() {
             beaconList.adapter = beaconAdapter
         }
 
+    }
+    fun getLocationWithTrilateration(
+        beaconA: BeaconLocation,
+        beaconB: BeaconLocation,
+        beaconC: BeaconLocation,
+        distanceA: Double,
+        distanceB: Double,
+        distanceC: Double
+    ): BeaconLocation {
+        val W: Double
+        val Z: Double
+        val foundBeaconX: Double
+        var foundBeaconY: Double
+        val foundBeaconYFilter: Double
+
+        W = distanceA * distanceA - distanceB * distanceB -
+                beaconA.x * beaconA.x - beaconA.y * beaconA.y +
+                beaconB.x * beaconB.x + beaconB.y * beaconB.y
+
+        Z = distanceB * distanceB - distanceC * distanceC -
+                beaconB.x * beaconB.x - beaconB.y * beaconB.y +
+                beaconC.x * beaconC.x + beaconC.y * beaconC.y
+        foundBeaconX = (W * (beaconC.y - beaconB.y) - Z * (beaconB.y - beaconA.y))/
+                (2 * ((beaconB.x - beaconA.x) * (beaconC.y - beaconB.y) - (beaconC.x - beaconB.x) * (beaconB.y - beaconA.y)))
+        foundBeaconY = (W - 2 * foundBeaconX * (beaconB.x - beaconA.x)) / (2 * (beaconB.y - beaconA.y))
+        //`foundBeaconLongFilter` is a second measure of `foundBeaconLong` to mitigate errors
+        foundBeaconYFilter = (Z - 2 * foundBeaconX * (beaconC.x - beaconB.x)) / (2 * (beaconC.y - beaconB.y))
+        foundBeaconY = (foundBeaconY + foundBeaconYFilter) / 2
+        val newLocation = BeaconLocation(foundBeaconX, foundBeaconY)
+
+        return newLocation
     }
 }
