@@ -8,8 +8,18 @@
     android:layout_height="match_parent"
     tools:context=".TestDrawActivity">
 
-    <com.daerong.graduationproject.draw.BeaconRangeView
+    <Button
+        android:id="@+id/change_btn"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:text="change"/>
+
+    <com.daerong.graduationproject.draw.BeaconRangeView
+        android:background="@drawable/parking"
+        android:id="@+id/range_view"
+        android:layout_gravity="center"
+        android:layout_width="1000px"
+        android:layout_height="1000px" />
+
 
 </LinearLayout>

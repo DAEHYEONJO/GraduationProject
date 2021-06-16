@@ -24,6 +24,6 @@ class BeaconAdapter(var list : ArrayList<BeaconData>):RecyclerView.Adapter<Beaco
         holder.binding.minor.text = list[position].minor
         holder.binding.rssi.text = list[position].rssi.toString()
         holder.binding.distance.text = list[position].dist.toString()
-        holder.binding.ratio.text = list[position].ratio.toString()
+        //holder.binding.ratio.text = list[position].ratio.toString()
     }
 }

@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity2">
     <Button
-        android:id="@+id/beacon_btn"
+        android:id="@+id/change_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="비콘 감지"/>
+        android:text="change"/>
+
     <RelativeLayout
         android:layout_width="936px"
-        android:layout_gravity="center"
         android:layout_height="936px">
         <TextView
             android:id="@+id/a"
@@ -130,46 +129,5 @@
             android:layout_marginBottom="0dp"
             android:background="#00000000" />
     </RelativeLayout>
-
-    <LinearLayout
-        android:padding="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/minor"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:text="minor"/>
-        <TextView
-            android:id="@+id/rssi"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:text="rssi"/>
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:text="dist"/>
-
-    </LinearLayout>
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/beacon_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
 </LinearLayout>

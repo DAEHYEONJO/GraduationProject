@@ -28,13 +28,5 @@
         android:layout_height="wrap_content"
         android:textSize="20dp"
         android:text="dist"/>
-    <TextView
-        android:id="@+id/ratio"
-        android:layout_width="0dp"
-        android:gravity="center"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:text="dist"/>
 
 </LinearLayout>
