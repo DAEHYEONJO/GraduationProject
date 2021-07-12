@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GraduationProject</string>
+    <string name="kakao_native_app_key">8ee308263f5ac8ddebb9559c7dd1c6a4</string>
 </resources>
