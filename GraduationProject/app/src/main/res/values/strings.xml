@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">GraduationProject</string>
     <string name="kakao_native_app_key">8ee308263f5ac8ddebb9559c7dd1c6a4</string>
+    <string name="login_fail">KakaoTalk is installed but not connected to Kakao account.</string>
+
+    <string-array name="work_space">
+        <item>새천년관</item>
+        <item>신공학관</item>
+        <item>학생회관</item>
+        <item>공대A동</item>
+    </string-array>
 </resources>

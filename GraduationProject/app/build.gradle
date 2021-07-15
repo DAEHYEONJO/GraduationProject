@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -61,4 +62,9 @@ dependencies {
     implementation "com.kakao.sdk:v2-story:2.5.2" // 카카오스토리
     implementation "com.kakao.sdk:v2-link:2.5.2" // 메시지(카카오링크)
     implementation "com.kakao.sdk:v2-navi:2.5.2" // 카카오내비
+
+    implementation platform('com.google.firebase:firebase-bom:28.2.1')//firebase
+    implementation 'com.google.firebase:firebase-analytics-ktx'//firebase
+    implementation 'com.google.firebase:firebase-auth-ktx'//firebase
+    implementation 'com.google.firebase:firebase-firestore-ktx'//firebase
 }
