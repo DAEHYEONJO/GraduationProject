@@ -70,4 +70,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx'//firebase
 
     implementation 'com.google.android.gms:play-services-maps:17.0.0'//googlemap
+    implementation 'com.google.android.gms:play-services-location:17.0.0'//googlemap
 }
