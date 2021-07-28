@@ -15,6 +15,8 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -48,9 +50,15 @@ class InsertCarActivity : AppCompatActivity() {
 
     private lateinit var markArray: HashMap<LatLng,Marker>
 
+    private val insertCarViewModel : InsertCarViewModel by viewModels<InsertCarViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInsertCarBinding.inflate(layoutInflater)
+
+        val actionBar = supportActionBar
+        actionBar?.hide()
+
         setContentView(binding.root)
         if (isGranted()){
             initMap()
