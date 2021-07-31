@@ -46,12 +46,12 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="X"
+                    android:text="미선택"
                     android:gravity="center|right"
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:textSize="30sp"/>
+                    android:textSize="20sp"/>
             </LinearLayout>
             <TextView
                 android:id="@+id/car_num"

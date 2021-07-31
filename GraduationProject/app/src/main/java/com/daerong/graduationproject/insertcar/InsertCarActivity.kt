@@ -3,12 +3,10 @@ package com.daerong.graduationproject.insertcar
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
@@ -16,17 +14,25 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.daerong.graduationproject.R
+import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.data.ParkingLot
 import com.daerong.graduationproject.databinding.ActivityInsertCarBinding
+import com.daerong.graduationproject.viewmodel.InsertCarViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class InsertCarActivity : AppCompatActivity() {
 
@@ -37,7 +43,7 @@ class InsertCarActivity : AppCompatActivity() {
     private val kuKulHouse = LatLng(37.539310989047806, 127.07798674029614)
     private val hangJeongKwan = LatLng(37.54340621359558, 127.0742615457416)
     private val saeCheonNyeon = LatLng(37.54393231655204, 127.07708146729868)
-    private val locArray = arrayOf(kuHospital,kuKulHouse,hangJeongKwan,saeCheonNyeon)
+    private val locArray = arrayOf(saeCheonNyeon,kuHospital,kuKulHouse,hangJeongKwan)//얘들어간부분 최종적으로 다 지우기
     private val kuUniv = LatLng(37.541943028352364, 127.07511985263763)
 
     private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -48,14 +54,17 @@ class InsertCarActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient : FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
-    private lateinit var markArray: HashMap<LatLng,Marker>
+    private lateinit var markMap: HashMap<LatLng,Marker>
 
     private val insertCarViewModel : InsertCarViewModel by viewModels<InsertCarViewModel>()
+    private val db = GlobalApplication.db
+    private val parkingLotMap = HashMap<LatLng,ParkingLot>()//db에서 가져올때 viewmodel 초기화 용도 변수
+    private val mutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInsertCarBinding.inflate(layoutInflater)
-
+        fetchParkingLotData()
         val actionBar = supportActionBar
         actionBar?.hide()
 
@@ -72,6 +81,44 @@ class InsertCarActivity : AppCompatActivity() {
         binding.apply {
             myLocation.setOnClickListener {
                 setUpdateLocationListener()
+            }
+        }
+    }
+
+    private fun fetchParkingLotData(){
+        db.collection("ParkingLot").addSnapshotListener { value, error ->
+            if (error!=null) return@addSnapshotListener
+            markMap = HashMap()
+
+            for (doc in value!!.documentChanges){
+                Log.e("fetchParkingLotData", "addmarker for loop")
+                val data = doc.document.data
+
+                when (doc.type) {
+                    DocumentChange.Type.ADDED -> Log.d("fetchParkingLotData", "New city: ${doc.document.data}")
+                    DocumentChange.Type.MODIFIED -> Log.d("fetchParkingLotData", "Modified city: ${doc.document.data}")
+                    DocumentChange.Type.REMOVED -> Log.d("fetchParkingLotData", "Removed city: ${doc.document.data}")
+                }
+                val location = doc.document.data["location"] as GeoPoint
+                Log.d("fetchParkingLotData", location.latitude.toString())
+                val parkingLot = ParkingLot(
+                        parkingLotName = data["parkingLotName"].toString(),
+                        location = LatLng(location.latitude,location.longitude),
+                        curCarCount = data["curCarCount"].toString().toInt(),
+                        maxCarCount = data["maxCarCount"].toString().toInt()
+                )
+                parkingLotMap.put(parkingLot.location,parkingLot)
+                Log.d("fetchParkingLotData", parkingLotMap.get(parkingLot.location).toString())
+                CoroutineScope(Dispatchers.Main).launch {
+                    mutex.withLock {
+                        Log.e("fetchParkingLotData", "addmarker loop")
+                        addMarker(parkingLot.location)
+                    }
+                }
+            }
+            insertCarViewModel.parkingLotMap.value=parkingLotMap
+            insertCarViewModel.parkingLotMap.value!!.entries.forEach {
+                Log.d("fetchParkingLotData", " ${it.value}")
             }
         }
     }
@@ -118,13 +165,14 @@ class InsertCarActivity : AppCompatActivity() {
     }
 
     private fun addAllMarkers(){
-        markArray = HashMap();
+        Log.d("fetchParkingLotData", "addAllMarkers")
+        markMap = HashMap();
         for (latLng in locArray) {
             val options = MarkerOptions()
             options.position(latLng)
             options.icon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
             val marker = googleMap.addMarker(options)
-            markArray.put(latLng,marker)
+            markMap.put(latLng,marker)
         }
     }
 
@@ -145,27 +193,38 @@ class InsertCarActivity : AppCompatActivity() {
     private fun initMap() {
         mapFr = supportFragmentManager.findFragmentById(R.id.maps) as SupportMapFragment
         mapFr.getMapAsync { it ->
-            googleMap = it
-            markerClickListener()
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(kuUniv,16f))
-            addAllMarkers()
+            CoroutineScope(Dispatchers.Main).launch {
+                mutex.withLock {
+
+                    googleMap=it
+                    Log.e("fetchParkingLotData", "googleMap init")
+                    markerClickListener()
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(kuUniv,16f))
+                }
+            }
+
+            //addAllMarkers()
         }
     }
 
     private fun addMarker(loc : LatLng){
+        Log.e("fetchParkingLotData", "addmarker")
         val options = MarkerOptions()
         options.position(loc)
         options.icon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
-        googleMap.addMarker(options)
+        val marker = googleMap.addMarker(options)
+        markMap.put(loc,marker)
     }
 
     private fun markerClickListener(){
         googleMap.setOnMarkerClickListener { p0 ->
-            locArray.forEach {
-                markArray[it]?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
+            insertCarViewModel.parkingLotMap.value?.keys?.forEach {
+                markMap[it]?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
             }
+            Log.d("markerClickListener", insertCarViewModel.parkingLotMap.value?.get(p0.position).toString())
             p0?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_here))
-
+            insertCarViewModel.curParkingLotName.value = insertCarViewModel.parkingLotMap.value?.get(p0.position)?.parkingLotName.toString()
+            Log.d("markerClickListener", insertCarViewModel.curParkingLotName.value.toString() )
             true
         }
     }
@@ -219,5 +278,10 @@ class InsertCarActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
     }
 }

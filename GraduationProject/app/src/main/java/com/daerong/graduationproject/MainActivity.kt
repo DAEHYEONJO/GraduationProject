@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.daerong.graduationproject.data.BeaconData
 import com.daerong.graduationproject.databinding.ActivityMainBinding
 import com.minew.beaconset.BluetoothState
 import com.minew.beaconset.MinewBeacon

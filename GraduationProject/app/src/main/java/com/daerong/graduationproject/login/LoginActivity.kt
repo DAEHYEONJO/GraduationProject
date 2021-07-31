@@ -1,28 +1,20 @@
 package com.daerong.graduationproject.login
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentValues.TAG
-import android.content.Context
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
 import android.widget.ArrayAdapter
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.data.User
 import com.daerong.graduationproject.databinding.ActivityLoginBinding
 import com.daerong.graduationproject.databinding.WarningDialogBinding
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
-import com.minew.device.baseblelibaray.a.e
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.*
 
 class LoginActivity : AppCompatActivity() {
@@ -164,7 +156,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun registerDb(name : String){
-        db.collection("User").document(name).set(User(name,workSpace))
+        db.collection("User").document(name).set(User(name, workSpace))
     }
 
 }

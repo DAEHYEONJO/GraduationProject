@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import com.daerong.graduationproject.R
+import androidx.lifecycle.Observer
 import com.daerong.graduationproject.databinding.FragmentInsertCarInfoBinding
+import com.daerong.graduationproject.viewmodel.InsertCarViewModel
+import com.kakao.sdk.common.KakaoSdk.init
 
 
 class InsertCarInfoFragment : Fragment() {
@@ -22,6 +24,18 @@ class InsertCarInfoFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentInsertCarInfoBinding.inflate(layoutInflater,container,false)
         return binding?.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initText()
+    }
+
+    private fun initText() {
+        insertCarViewModel.curParkingLotName.observe(viewLifecycleOwner, Observer {
+            binding!!.parkingLotName.text = "$it 주차장"
+        })
     }
 
 

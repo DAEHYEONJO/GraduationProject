@@ -3,8 +3,8 @@ package com.daerong.graduationproject
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.daerong.graduationproject.data.BeaconData
 import com.daerong.graduationproject.databinding.BeaconRowBinding
-import com.minew.beaconset.MinewBeacon
 
 class BeaconAdapter(var list : ArrayList<BeaconData>):RecyclerView.Adapter<BeaconAdapter.ViewHolder>() {
 
