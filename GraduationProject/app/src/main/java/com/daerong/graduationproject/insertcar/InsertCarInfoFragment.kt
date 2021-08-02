@@ -9,7 +9,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.daerong.graduationproject.databinding.FragmentInsertCarInfoBinding
 import com.daerong.graduationproject.viewmodel.InsertCarViewModel
-import com.kakao.sdk.common.KakaoSdk.init
 
 
 class InsertCarInfoFragment : Fragment() {
@@ -33,9 +32,19 @@ class InsertCarInfoFragment : Fragment() {
     }
 
     private fun initText() {
-        insertCarViewModel.curParkingLotName.observe(viewLifecycleOwner, Observer {
-            binding!!.parkingLotName.text = "$it 주차장"
-        })
+        insertCarViewModel.run {
+            curParkingLotName.observe(viewLifecycleOwner, Observer {
+                binding!!.parkingLotName.text = "$it 주차장"
+            })
+            curParkingLotSection.observe(viewLifecycleOwner, Observer {
+                binding!!.parkingLotSection.text = "${it}구역"
+            })
+            curCarNum.observe(viewLifecycleOwner, Observer {
+                binding!!.carNum.text = it
+            })
+            carPhotoUri.observe(viewLifecycleOwner, Observer {
+            })
+        }
     }
 
 

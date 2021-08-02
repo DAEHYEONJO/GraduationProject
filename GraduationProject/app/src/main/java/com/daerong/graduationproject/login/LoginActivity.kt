@@ -50,6 +50,8 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
+
+
     private fun initBtn() {
         binding.apply {
             loginBtn.setOnClickListener {

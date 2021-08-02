@@ -65,6 +65,7 @@ class InsertCarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityInsertCarBinding.inflate(layoutInflater)
         fetchParkingLotData()
+        initValuesForDbTest()
         val actionBar = supportActionBar
         actionBar?.hide()
 
@@ -76,6 +77,14 @@ class InsertCarActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this@InsertCarActivity,permissions,REQ_PERMISSION)
         }
     }
+
+    private fun initValuesForDbTest() {
+        insertCarViewModel.run {
+            curCarNum.value = "111가2222"
+            curParkingLotSection.value = "A"
+        }
+    }
+
 
     private fun initBtn() {
         binding.apply {
