@@ -16,10 +16,16 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import com.daerong.graduationproject.R
+import com.daerong.graduationproject.adapter.CustomInfoWindowAdapter
 import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.data.DistName
+import com.daerong.graduationproject.data.InsertCar
 import com.daerong.graduationproject.data.ParkingLot
 import com.daerong.graduationproject.databinding.ActivityInsertCarBinding
+import com.daerong.graduationproject.databinding.CustomMapInfoWindowBinding
 import com.daerong.graduationproject.viewmodel.InsertCarViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -33,6 +39,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.lang.Math.cos
+import java.lang.Math.pow
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.asin
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
+import kotlin.properties.Delegates
 
 class InsertCarActivity : AppCompatActivity() {
 
@@ -78,10 +93,34 @@ class InsertCarActivity : AppCompatActivity() {
         }
     }
 
+    private fun getDistance(lng1: LatLng, lng2 : LatLng) : Double{
+        val dLat = Math.toRadians(lng1.latitude-lng2.latitude)//위도 차이
+        val dLong = Math.toRadians(lng1.longitude-lng2.longitude)//경도차이
+
+        val lat1 = Math.toRadians(lng1.latitude)//경도1 라디안으로
+        val lat2 = Math.toRadians(lng2.latitude)//경도 2 라디안으로
+
+        val a = sin(dLat / 2).pow(2.0) + sin(dLong / 2).pow(2)* kotlin.math.cos(lat1) * kotlin.math.cos(lat2)
+        val radius = 6371//지구반지름
+        val c = 2* asin(sqrt(a))//두점사이 각도
+        return radius*c*1000
+    }
+
+    private fun calcClosestPlace(loc: LatLng): String {
+        val priorityQueue = PriorityQueue<DistName>()
+        insertCarViewModel.parkingLotMap.value!!.keys.forEach { latLng ->
+            val dist1 = getDistance(loc,latLng)
+            priorityQueue.add(DistName(dist1,insertCarViewModel.parkingLotMap.value!![latLng]!!.parkingLotName))
+        }
+        return priorityQueue.poll().name
+    }
+
     private fun initValuesForDbTest() {
+        GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
         insertCarViewModel.run {
             curCarNum.value = "111가2222"
             curParkingLotSection.value = "A"
+
         }
     }
 
@@ -91,13 +130,52 @@ class InsertCarActivity : AppCompatActivity() {
             myLocation.setOnClickListener {
                 setUpdateLocationListener()
             }
+            completeBtn.setOnClickListener {
+                insertCurCar()
+            }
         }
     }
 
+    private fun insertCurCar() {
+        //1. 필수 정보(주차장이름, 차량번호, 주차구역정)의 not null 여부 확인하기
+        val curParkingLotName = insertCarViewModel.curParkingLotName.value
+        val curParkingSection = insertCarViewModel.curParkingLotSection.value
+        val curCarNum = insertCarViewModel.curCarNum.value
+        if (curParkingLotName!=""&&curParkingSection!=""&&curCarNum!=""){
+            Log.e("insertCurCar","not null insertCurCar")
+            //필수정보 not null
+            //2. 현재 선택된 주차장의 curCarCount와 maxCarCount 비교하여 입차 가능 여부 확인
+            val docRef = db.collection("ParkingLot").document(curParkingLotName!!)
+            var curCarCount = -1
+            var maxCarCount = -1
+            docRef.get().addOnSuccessListener {
+                Log.e("insertCurCar","addOnSuccessListener insertCurCar")
+                curCarCount = it["curCarCount"].toString().toInt()
+                maxCarCount = it["maxCarCount"].toString().toInt()
+                if (curCarCount<maxCarCount){
+                    //curCarCount +1 하기
+                    //차량 객체 생성해서 db에 등록하기
+                    docRef.update("curCarCount",curCarCount+1)
+                    val insertCar = InsertCar(
+                        parkingLotName = curParkingLotName,
+                        parkingSection = curParkingSection!!,
+                        carNum = curCarNum!!,
+                        carStatus = 2,
+                        managed = GlobalApplication.prefs.getString("id","")
+                    )
+                    db.collection("CarList").document(curCarNum).set(insertCar)
+                }
+            }
+        }else{
+            //필수정보 Null
+        }
+
+    }
+
     private fun fetchParkingLotData(){
+        markMap = HashMap()
         db.collection("ParkingLot").addSnapshotListener { value, error ->
             if (error!=null) return@addSnapshotListener
-            markMap = HashMap()
 
             for (doc in value!!.documentChanges){
                 Log.e("fetchParkingLotData", "addmarker for loop")
@@ -118,16 +196,19 @@ class InsertCarActivity : AppCompatActivity() {
                 )
                 parkingLotMap.put(parkingLot.location,parkingLot)
                 Log.d("fetchParkingLotData", parkingLotMap.get(parkingLot.location).toString())
-                CoroutineScope(Dispatchers.Main).launch {
-                    mutex.withLock {
-                        Log.e("fetchParkingLotData", "addmarker loop")
-                        addMarker(parkingLot.location)
+                if (doc.type == DocumentChange.Type.ADDED){
+                    CoroutineScope(Dispatchers.Main).launch {
+                        mutex.withLock {
+                            Log.e("fetchParkingLotData", "addmarker loop")
+                            addMarker(parkingLot.location)
+                        }
                     }
                 }
+
             }
             insertCarViewModel.parkingLotMap.value=parkingLotMap
             insertCarViewModel.parkingLotMap.value!!.entries.forEach {
-                Log.d("fetchParkingLotData", " ${it.value}")
+                Log.d("fetchParkingLotData", "insertCarViewModel parkingLotMap ${it.value}")
             }
         }
     }
@@ -138,13 +219,11 @@ class InsertCarActivity : AppCompatActivity() {
         val locationRequest = LocationRequest.create()
         locationRequest.run {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 2000
+            interval = 1000
         }
         locationCallback = object : LocationCallback(){
-            var count = 0
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult?.let {
-                    count++
                     for((i,location ) in it.locations.withIndex()){
                         Log.d("fuesedLocationCallback","$i ${location.latitude}, ${location.longitude}")
                         setLastLocation(location)
@@ -152,6 +231,7 @@ class InsertCarActivity : AppCompatActivity() {
                 }
             }
         }
+
         //로케이션 요청 함수 호출(locationRequest, locationCallback)
 
         if (!isGranted()){
@@ -167,10 +247,11 @@ class InsertCarActivity : AppCompatActivity() {
 
     private fun setLastLocation(location: Location) {
         val myLocation = LatLng(location.latitude,location.longitude)
-        googleMap.clear()
+        Log.d("dist : ",calcClosestPlace(myLocation).toString())
+        /*googleMap.clear()
         addAllMarkers()
         addMarker(myLocation)
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,16f))
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,16f))*/
     }
 
     private fun addAllMarkers(){
@@ -228,12 +309,19 @@ class InsertCarActivity : AppCompatActivity() {
     private fun markerClickListener(){
         googleMap.setOnMarkerClickListener { p0 ->
             insertCarViewModel.parkingLotMap.value?.keys?.forEach {
+                Log.d("markerClickListener", "마커클릭 검은색세팅 ${insertCarViewModel.parkingLotMap.value!![it]?.parkingLotName}")
                 markMap[it]?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
             }
             Log.d("markerClickListener", insertCarViewModel.parkingLotMap.value?.get(p0.position).toString())
             p0?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_here))
+
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(p0.position,16f))
+
             insertCarViewModel.curParkingLotName.value = insertCarViewModel.parkingLotMap.value?.get(p0.position)?.parkingLotName.toString()
             Log.d("markerClickListener", insertCarViewModel.curParkingLotName.value.toString() )
+
+            googleMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this@InsertCarActivity, CustomMapInfoWindowBinding.inflate(layoutInflater), insertCarViewModel, p0.position))
+            p0.showInfoWindow()
             true
         }
     }

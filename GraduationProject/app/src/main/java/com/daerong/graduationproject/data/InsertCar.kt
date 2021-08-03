@@ -6,7 +6,6 @@ import java.io.Serializable
 data class InsertCar(var parkingLotName: String = "주차장 미선택"
                      , var parkingSection: String = "미선택"
                      , var carNum: String = "차량번호 미인식"
-                     , var carPhotoUri: Uri = Uri.EMPTY
                      , var carStatus: Int = 3
                      , var approachStatus: Boolean = false
                      , var managed: String = ""):Serializable

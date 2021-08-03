@@ -34,7 +34,8 @@ class InsertCarInfoFragment : Fragment() {
     private fun initText() {
         insertCarViewModel.run {
             curParkingLotName.observe(viewLifecycleOwner, Observer {
-                binding!!.parkingLotName.text = "$it 주차장"
+                if (it!="") binding!!.parkingLotName.text = "$it 주차장"
+                else binding!!.parkingLotName.text = "주차장 미선택"
             })
             curParkingLotSection.observe(viewLifecycleOwner, Observer {
                 binding!!.parkingLotSection.text = "${it}구역"
@@ -50,5 +51,6 @@ class InsertCarInfoFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        binding = null
     }
 }
