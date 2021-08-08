@@ -1,5 +1,6 @@
 package com.daerong.graduationproject.application
 
+import android.annotation.SuppressLint
 import android.app.Application
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.login.MyPreference
@@ -12,14 +13,14 @@ class GlobalApplication : Application() {
 
     companion object{
         lateinit var prefs : MyPreference
-        lateinit var db : FirebaseFirestore
     }
+
+
 
     override fun onCreate() {
         super.onCreate()
 
         prefs = MyPreference(applicationContext)
-        db = Firebase.firestore
 
         KakaoSdk.init(this,getString(R.string.kakao_native_app_key))
     }

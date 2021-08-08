@@ -7,15 +7,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.os.Looper
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.daerong.graduationproject.R
@@ -34,13 +38,18 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.GeoPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.File
+import java.io.IOException
+import java.lang.Exception
 import java.lang.Math.cos
 import java.lang.Math.pow
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.asin
@@ -51,6 +60,7 @@ import kotlin.properties.Delegates
 
 class InsertCarActivity : AppCompatActivity() {
 
+    private val REQUEST_TAKE_PHOTO: Int = 10
     private lateinit var binding : ActivityInsertCarBinding
     private lateinit var mapFr : SupportMapFragment
     private lateinit var googleMap : GoogleMap
@@ -61,7 +71,7 @@ class InsertCarActivity : AppCompatActivity() {
     private val locArray = arrayOf(saeCheonNyeon,kuHospital,kuKulHouse,hangJeongKwan)//얘들어간부분 최종적으로 다 지우기
     private val kuUniv = LatLng(37.541943028352364, 127.07511985263763)
 
-    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     private val REQ_PERMISSION = 100
     private val REQ_RE = 200
     //fine location : use gps, coarse location :
@@ -72,14 +82,16 @@ class InsertCarActivity : AppCompatActivity() {
     private lateinit var markMap: HashMap<LatLng,Marker>
 
     private val insertCarViewModel : InsertCarViewModel by viewModels<InsertCarViewModel>()
-    private val db = GlobalApplication.db
+    private val db = Firebase.firestore
+    private val storage = Firebase.storage
     private val parkingLotMap = HashMap<LatLng,ParkingLot>()//db에서 가져올때 viewmodel 초기화 용도 변수
     private val mutex = Mutex()
+
+    private lateinit var mCurrentPhotoPath : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInsertCarBinding.inflate(layoutInflater)
-        fetchParkingLotData()
         initValuesForDbTest()
         val actionBar = supportActionBar
         actionBar?.hide()
@@ -91,6 +103,67 @@ class InsertCarActivity : AppCompatActivity() {
         }else{
             ActivityCompat.requestPermissions(this@InsertCarActivity,permissions,REQ_PERMISSION)
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initMap() {
+        mapFr = supportFragmentManager.findFragmentById(R.id.maps) as SupportMapFragment
+        mapFr.getMapAsync { it ->
+            val job = CoroutineScope(Dispatchers.Main).launch {
+                mutex.withLock {
+                    googleMap=it
+                    Log.e("fetchParkingLotData", "googleMap init")
+                    markerClickListener()
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(kuUniv,16f))
+                }
+            }
+            Log.e("fetchParkingLotData", "여기오나?")
+
+            //addAllMarkers()
+            markMap = HashMap()
+            db.collection("ParkingLot").addSnapshotListener { value, error ->
+                if (error!=null) return@addSnapshotListener
+
+                for (doc in value!!.documentChanges){
+                    Log.e("fetchParkingLotData", "addmarker for loop")
+                    val data = doc.document.data
+
+                    when (doc.type) {
+                        DocumentChange.Type.ADDED -> Log.d("fetchParkingLotData", "New city: ${doc.document.data}")
+                        DocumentChange.Type.MODIFIED -> Log.d("fetchParkingLotData", "Modified city: ${doc.document.data}")
+                        DocumentChange.Type.REMOVED -> Log.d("fetchParkingLotData", "Removed city: ${doc.document.data}")
+                    }
+                    val location = doc.document.data["location"] as GeoPoint
+                    Log.d("fetchParkingLotData", location.latitude.toString())
+                    val parkingLot = ParkingLot(
+                            parkingLotName = data["parkingLotName"].toString(),
+                            location = LatLng(location.latitude,location.longitude),
+                            curCarCount = data["curCarCount"].toString().toInt(),
+                            maxCarCount = data["maxCarCount"].toString().toInt()
+                    )
+                    parkingLotMap.put(parkingLot.location,parkingLot)
+                    Log.d("fetchParkingLotData", parkingLotMap.get(parkingLot.location).toString())
+                    if (doc.type == DocumentChange.Type.ADDED){
+                        CoroutineScope(Dispatchers.Main).launch {
+                            job.join()
+                            mutex.withLock {
+                                Log.e("fetchParkingLotData", "addmarker loop")
+                                addMarker(parkingLot.location)
+                            }
+                        }
+                    }
+
+                }
+                insertCarViewModel.parkingLotMap.value=parkingLotMap
+                insertCarViewModel.parkingLotMap.value!!.entries.forEach {
+                    Log.d("fetchParkingLotData", "insertCarViewModel parkingLotMap ${it.value}")
+                }
+            }
+        }
+    }
+
+    private fun fetchParkingLotData(){
+
     }
 
     private fun getDistance(lng1: LatLng, lng2 : LatLng) : Double{
@@ -133,7 +206,49 @@ class InsertCarActivity : AppCompatActivity() {
             completeBtn.setOnClickListener {
                 insertCurCar()
             }
+            parkingCamera.setOnClickListener {
+                Log.i("cameraclick","cameraclick")
+                captureCamera()
+            }
         }
+    }
+
+    private fun createImageFile() : File? {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "JPEG_$timeStamp.jpg"
+        var imageFile : File? = null
+        val storageDir = File(Environment.getExternalStorageDirectory().toString()+"/Pictures","jodaehyeon")
+        if (!storageDir.exists()){
+            Log.e("aboutCamera2",storageDir.toString()+"경로미존재 ")
+            storageDir.mkdir()
+        }
+        imageFile = File(storageDir,imageFileName)
+        mCurrentPhotoPath = imageFile.absolutePath
+        return imageFile
+    }
+
+    private fun captureCamera(){
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(packageManager)!=null){
+            var photoFile : File?=null
+            try {
+                photoFile = createImageFile()
+            }catch (e : IOException){
+                Log.e("aboutCamera2",e.toString())
+                return
+            }
+            if (photoFile!=null){
+                val providerUri = FileProvider.getUriForFile(this,packageName,photoFile)
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,providerUri)
+                startActivityForResult(takePictureIntent,REQUEST_TAKE_PHOTO)
+            }
+        }else{
+            Log.e("aboutCamera2","empty resoleActivity")
+        }
+    }
+
+    private fun showPictureDialog() {
+
     }
 
     private fun insertCurCar() {
@@ -172,46 +287,7 @@ class InsertCarActivity : AppCompatActivity() {
 
     }
 
-    private fun fetchParkingLotData(){
-        markMap = HashMap()
-        db.collection("ParkingLot").addSnapshotListener { value, error ->
-            if (error!=null) return@addSnapshotListener
 
-            for (doc in value!!.documentChanges){
-                Log.e("fetchParkingLotData", "addmarker for loop")
-                val data = doc.document.data
-
-                when (doc.type) {
-                    DocumentChange.Type.ADDED -> Log.d("fetchParkingLotData", "New city: ${doc.document.data}")
-                    DocumentChange.Type.MODIFIED -> Log.d("fetchParkingLotData", "Modified city: ${doc.document.data}")
-                    DocumentChange.Type.REMOVED -> Log.d("fetchParkingLotData", "Removed city: ${doc.document.data}")
-                }
-                val location = doc.document.data["location"] as GeoPoint
-                Log.d("fetchParkingLotData", location.latitude.toString())
-                val parkingLot = ParkingLot(
-                        parkingLotName = data["parkingLotName"].toString(),
-                        location = LatLng(location.latitude,location.longitude),
-                        curCarCount = data["curCarCount"].toString().toInt(),
-                        maxCarCount = data["maxCarCount"].toString().toInt()
-                )
-                parkingLotMap.put(parkingLot.location,parkingLot)
-                Log.d("fetchParkingLotData", parkingLotMap.get(parkingLot.location).toString())
-                if (doc.type == DocumentChange.Type.ADDED){
-                    CoroutineScope(Dispatchers.Main).launch {
-                        mutex.withLock {
-                            Log.e("fetchParkingLotData", "addmarker loop")
-                            addMarker(parkingLot.location)
-                        }
-                    }
-                }
-
-            }
-            insertCarViewModel.parkingLotMap.value=parkingLotMap
-            insertCarViewModel.parkingLotMap.value!!.entries.forEach {
-                Log.d("fetchParkingLotData", "insertCarViewModel parkingLotMap ${it.value}")
-            }
-        }
-    }
 
     @SuppressLint("MissingPermission")
     private fun setUpdateLocationListener(){
@@ -248,6 +324,11 @@ class InsertCarActivity : AppCompatActivity() {
     private fun setLastLocation(location: Location) {
         val myLocation = LatLng(location.latitude,location.longitude)
         Log.d("dist : ",calcClosestPlace(myLocation).toString())
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+        //현재 location 위치 띄워주기
+        //거리 추천 주차장 마커 빨갛게
+        //animate camera to 주차장으로 옮겨주기
+        //
         /*googleMap.clear()
         addAllMarkers()
         addMarker(myLocation)
@@ -278,23 +359,6 @@ class InsertCarActivity : AppCompatActivity() {
             }
         }
         return true
-    }
-
-    private fun initMap() {
-        mapFr = supportFragmentManager.findFragmentById(R.id.maps) as SupportMapFragment
-        mapFr.getMapAsync { it ->
-            CoroutineScope(Dispatchers.Main).launch {
-                mutex.withLock {
-
-                    googleMap=it
-                    Log.e("fetchParkingLotData", "googleMap init")
-                    markerClickListener()
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(kuUniv,16f))
-                }
-            }
-
-            //addAllMarkers()
-        }
     }
 
     private fun addMarker(loc : LatLng){
@@ -374,7 +438,27 @@ class InsertCarActivity : AppCompatActivity() {
                     initMap()
                 }
             }
+            REQUEST_TAKE_PHOTO -> {
+                if (resultCode == RESULT_OK) {
+                    try {
+                        galleryAddPic()
+                    } catch (e: Exception) {
+                        Log.e("aboutCamera2", e.toString())
+                    }
+                } else {
+                    Toast.makeText(this, "사진찍기 취소", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
+    }
+
+    private fun galleryAddPic() {
+        Log.i("galleryAddPic","galleryAddPic Call")
+        val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        val f = File(mCurrentPhotoPath)
+        val contentUri = Uri.fromFile(f)
+        mediaScanIntent.data = contentUri
+        sendBroadcast(mediaScanIntent)
     }
 
     override fun onResume() {

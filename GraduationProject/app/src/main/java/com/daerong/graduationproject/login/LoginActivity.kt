@@ -13,6 +13,8 @@ import com.daerong.graduationproject.application.GlobalApplication
 import com.daerong.graduationproject.data.User
 import com.daerong.graduationproject.databinding.ActivityLoginBinding
 import com.daerong.graduationproject.databinding.WarningDialogBinding
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import java.util.*
@@ -20,7 +22,7 @@ import java.util.*
 class LoginActivity : AppCompatActivity() {
 
     private val myPreference = GlobalApplication.prefs
-    private val db = GlobalApplication.db
+    private val db = Firebase.firestore
     private val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {
             Log.e("KakaoLogin", "로그인 실패", error)
