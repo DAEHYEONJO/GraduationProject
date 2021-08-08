@@ -208,7 +208,8 @@ class InsertCarActivity : AppCompatActivity() {
             }
             parkingCamera.setOnClickListener {
                 Log.i("cameraclick","cameraclick")
-                captureCamera()
+                //captureCamera()
+                startActivityForResult(Intent(this@InsertCarActivity,CameraXActivity::class.java),2000)
             }
         }
     }
