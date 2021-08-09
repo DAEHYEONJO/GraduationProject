@@ -65,5 +65,6 @@ class GlobalApplication : Application() {
     fun progressOff(){
         if(progressDialog!=null && (progressDialog?.isShowing == true)){
             progressDialog?.dismiss()
+        }
     }
 }
