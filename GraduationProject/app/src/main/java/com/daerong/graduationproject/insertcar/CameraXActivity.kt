@@ -97,7 +97,7 @@ class CameraXActivity : AppCompatActivity() {
                     cameraSelector,
                     this.preview,
                     imageCapture
-                )
+                ).cameraInfo.hasFlashUnit()
             }catch (e : Exception){
                 Log.e("CameraX",e.toString())
             }

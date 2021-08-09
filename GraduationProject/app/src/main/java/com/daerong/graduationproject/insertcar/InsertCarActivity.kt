@@ -88,6 +88,7 @@ class InsertCarActivity : AppCompatActivity() {
     private val mutex = Mutex()
 
     private lateinit var mCurrentPhotoPath : String
+    private var curInfoWindowPlace : LatLng? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,14 +96,27 @@ class InsertCarActivity : AppCompatActivity() {
         initValuesForDbTest()
         val actionBar = supportActionBar
         actionBar?.hide()
-
         setContentView(binding.root)
+
+
         if (isGranted()){
             initMap()
             initBtn()
         }else{
             ActivityCompat.requestPermissions(this@InsertCarActivity,permissions,REQ_PERMISSION)
         }
+    }
+
+    private fun viewModelFunction() {
+        insertCarViewModel.parkingLotMap.observe(this@InsertCarActivity,{changedMap->
+            val curMarker = markMap[curInfoWindowPlace]
+            if (curMarker?.isInfoWindowShown == true){
+                Log.d("curinfowindowplace","infowindow 보여지는중")
+                setCurParkLotNameInfoWindow(curInfoWindowPlace!!,curMarker)
+            }else{
+                Log.d("curinfowindowplace","infowindow 안보여지는중")
+            }
+        })
     }
 
     @SuppressLint("MissingPermission")
@@ -121,6 +135,7 @@ class InsertCarActivity : AppCompatActivity() {
 
             //addAllMarkers()
             markMap = HashMap()
+            viewModelFunction()
             db.collection("ParkingLot").addSnapshotListener { value, error ->
                 if (error!=null) return@addSnapshotListener
 
@@ -179,15 +194,6 @@ class InsertCarActivity : AppCompatActivity() {
         return radius*c*1000
     }
 
-    private fun calcClosestPlace(loc: LatLng): String {
-        val priorityQueue = PriorityQueue<DistName>()
-        insertCarViewModel.parkingLotMap.value!!.keys.forEach { latLng ->
-            val dist1 = getDistance(loc,latLng)
-            priorityQueue.add(DistName(dist1,insertCarViewModel.parkingLotMap.value!![latLng]!!.parkingLotName))
-        }
-        return priorityQueue.poll().name
-    }
-
     private fun initValuesForDbTest() {
         GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
         insertCarViewModel.run {
@@ -197,10 +203,12 @@ class InsertCarActivity : AppCompatActivity() {
         }
     }
 
-
     private fun initBtn() {
         binding.apply {
             myLocation.setOnClickListener {
+                //로딩 애니메이션 표시
+                GlobalApplication.getInstance().progressOn(this@InsertCarActivity)
+                it.isEnabled = false
                 setUpdateLocationListener()
             }
             completeBtn.setOnClickListener {
@@ -213,6 +221,7 @@ class InsertCarActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun createImageFile() : File? {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
@@ -280,15 +289,16 @@ class InsertCarActivity : AppCompatActivity() {
                         managed = GlobalApplication.prefs.getString("id","")
                     )
                     db.collection("CarList").document(curCarNum).set(insertCar)
+                }else{
+                    Toast.makeText(this@InsertCarActivity, "입차 불가", Toast.LENGTH_SHORT).show()
                 }
             }
         }else{
             //필수정보 Null
+            Toast.makeText(this@InsertCarActivity, "필수 정보 누락", Toast.LENGTH_SHORT).show()
         }
 
     }
-
-
 
     @SuppressLint("MissingPermission")
     private fun setUpdateLocationListener(){
@@ -304,6 +314,7 @@ class InsertCarActivity : AppCompatActivity() {
                     for((i,location ) in it.locations.withIndex()){
                         Log.d("fuesedLocationCallback","$i ${location.latitude}, ${location.longitude}")
                         setLastLocation(location)
+                        binding.myLocation.isEnabled = true
                     }
                 }
             }
@@ -322,18 +333,49 @@ class InsertCarActivity : AppCompatActivity() {
         }
     }
 
+
+
+    private fun calcClosestPlace(loc: LatLng): LatLng {
+        val priorityQueue = PriorityQueue<DistName>()
+        insertCarViewModel.parkingLotMap.value!!.keys.forEach { latLng ->
+            val dist1 = getDistance(loc,latLng)
+            priorityQueue.add(DistName(dist1,insertCarViewModel.parkingLotMap.value!![latLng]!!.parkingLotName, latLng))
+        }
+        return priorityQueue.poll().latLng
+    }
+
     private fun setLastLocation(location: Location) {
+        GlobalApplication.getInstance().progressOff()
         val myLocation = LatLng(location.latitude,location.longitude)
-        Log.d("dist : ",calcClosestPlace(myLocation).toString())
+        val closestPlace = calcClosestPlace(myLocation)
+        Log.d("dist : ", insertCarViewModel.parkingLotMap.value?.get(closestPlace)?.parkingLotName.toString())
         fusedLocationClient.removeLocationUpdates(locationCallback)
-        //현재 location 위치 띄워주기
+        //현재 location 위치 띄워주기(안해도될것같음)
         //거리 추천 주차장 마커 빨갛게
+
+        makeOneMarkerRedAndMove(closestPlace)
+        setCurParkLotNameInfoWindow(closestPlace,markMap[closestPlace]!!)
         //animate camera to 주차장으로 옮겨주기
         //
         /*googleMap.clear()
         addAllMarkers()
         addMarker(myLocation)
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,16f))*/
+        */
+    }
+
+    private fun setCurParkLotNameInfoWindow(latLng: LatLng, marker: Marker){
+        insertCarViewModel.curParkingLotName.value = insertCarViewModel.parkingLotMap.value?.get(latLng)?.parkingLotName.toString()
+        googleMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this@InsertCarActivity, CustomMapInfoWindowBinding.inflate(layoutInflater), insertCarViewModel, latLng))
+        marker.showInfoWindow()
+        curInfoWindowPlace = latLng
+    }
+
+    private fun makeOneMarkerRedAndMove(latLng: LatLng){
+        markMap.values.forEach {
+            it.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
+        }
+        markMap[latLng]?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_here))
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16f))
     }
 
     private fun addAllMarkers(){
@@ -373,21 +415,19 @@ class InsertCarActivity : AppCompatActivity() {
 
     private fun markerClickListener(){
         googleMap.setOnMarkerClickListener { p0 ->
-            insertCarViewModel.parkingLotMap.value?.keys?.forEach {
-                Log.d("markerClickListener", "마커클릭 검은색세팅 ${insertCarViewModel.parkingLotMap.value!![it]?.parkingLotName}")
-                markMap[it]?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
-            }
-            Log.d("markerClickListener", insertCarViewModel.parkingLotMap.value?.get(p0.position).toString())
-            p0?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_here))
-
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(p0.position,16f))
-
-            insertCarViewModel.curParkingLotName.value = insertCarViewModel.parkingLotMap.value?.get(p0.position)?.parkingLotName.toString()
-            Log.d("markerClickListener", insertCarViewModel.curParkingLotName.value.toString() )
-
-            googleMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this@InsertCarActivity, CustomMapInfoWindowBinding.inflate(layoutInflater), insertCarViewModel, p0.position))
-            p0.showInfoWindow()
+            makeOneMarkerRedAndMove(p0.position)
+            setCurParkLotNameInfoWindow(p0.position,p0)
             true
+        }
+        googleMap.setOnMapClickListener {
+            //infowindow 다 내리기
+            //빨간색 마커 검은색으로 바꾸기
+            //현재 선택 주차장 미선택으로 바꾸기
+            if (curInfoWindowPlace!=null){
+                markMap[curInfoWindowPlace]?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.parking_black))
+            }
+            //이건 해야할지 모르겠다(주차장이름 없애기)
+            //insertCarViewModel.curParkingLotName.value = ""
         }
     }
 

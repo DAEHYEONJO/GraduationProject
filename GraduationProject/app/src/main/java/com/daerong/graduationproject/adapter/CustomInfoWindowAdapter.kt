@@ -18,14 +18,10 @@ import com.google.android.gms.maps.model.Marker
 class CustomInfoWindowAdapter(var context : Context,var binding: CustomMapInfoWindowBinding, var insertCarViewModel: InsertCarViewModel, var loc : LatLng) : GoogleMap.InfoWindowAdapter {
 
     private fun setInfoWindowText(){
-        insertCarViewModel.parkingLotMap.observe(context as LifecycleOwner, Observer {
-            val curParkingLot = it[loc]
-            Log.d("CustomInfoWindowAdapter","${curParkingLot!!.curCarCount}")
-            binding.title.text = curParkingLot.parkingLotName + " 주차장"
-            binding.curCarCountView.text = "현재 입차 차량 수 : ${curParkingLot.curCarCount}"
-            binding.maxCarCountView.text = "입차 가능 차량 수 : ${curParkingLot.maxCarCount}"
-
-        })
+        val curParkingLot = insertCarViewModel.parkingLotMap.value?.get(loc)
+        binding.title.text = curParkingLot?.parkingLotName + " 주차장"
+        binding.curCarCountView.text = "현재 입차 차량 수 : ${curParkingLot?.curCarCount}"
+        binding.maxCarCountView.text = "입차 가능 차량 수 : ${curParkingLot?.maxCarCount}"
         Log.d("CustomInfoWindowAdapter","setInfoWindowText 마지막")
     }
 
