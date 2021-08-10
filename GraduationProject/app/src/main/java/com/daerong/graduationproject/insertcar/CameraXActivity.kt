@@ -9,8 +9,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.databinding.ActivityCameraXBinding
 import java.io.File
@@ -60,8 +62,9 @@ class CameraXActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback{
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
+                    val savedUri : Uri = Uri.fromFile(photoFile)
                     val msg = "사진캡쳐성공: $savedUri"
+                    //Glide.with(binding.root).load(savedUri).into(binding.caputedImg)
                     Toast.makeText(this@CameraXActivity, msg, Toast.LENGTH_SHORT).show()
                     Log.d("CameraX", msg)
                 }
@@ -92,12 +95,14 @@ class CameraXActivity : AppCompatActivity() {
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                val camera = cameraProvider.bindToLifecycle(
                     this,
                     cameraSelector,
                     this.preview,
                     imageCapture
-                ).cameraInfo.hasFlashUnit()
+                )
+                val cameraController = camera.cameraControl
+
             }catch (e : Exception){
                 Log.e("CameraX",e.toString())
             }
