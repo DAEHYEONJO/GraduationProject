@@ -67,14 +67,18 @@ class CameraXActivity : AppCompatActivity() {
                 cameraImgAdapter.imgList.forEachIndexed { index, cameraX ->
                     if (cameraX.checked) {
                         Log.d("photoChecked","${index} : ${cameraX.uri}")
-                        checkedList.add(cameraX.toString())
+                        checkedList.add(cameraX.uri.toString())
                     }
                     else Log.d("photoChecked","not checked ${index} : ${cameraX.uri}")
                 }
                 Log.d("photoChecked","backBtn clicked2")
-                val intent = Intent()
-                intent.putExtra("imgCheckedList",checkedList)
-                setResult(Activity.RESULT_OK,intent)
+                if (checkedList.size!=0){
+                    val intent = Intent()
+                    intent.putExtra("imgCheckedList",checkedList)
+                    setResult(Activity.RESULT_OK,intent)
+                }else{
+                    Log.d("photoChecked","체크된 사진 없음 그냥 종료")
+                }
                 finish()
             }
         }

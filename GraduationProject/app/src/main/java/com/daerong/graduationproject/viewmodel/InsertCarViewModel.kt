@@ -14,7 +14,7 @@ class InsertCarViewModel:ViewModel() {
     var curParkingLotName = MutableLiveData<String>()
     var curCarNum = MutableLiveData<String>()
     var curParkingLotSection = MutableLiveData<String>()
-    var carPhotoUri = MutableLiveData<Uri>()
+    var carPhotoUri = MutableLiveData<ArrayList<Uri>>()
 
     init {
         curParkingLotName.value = ""

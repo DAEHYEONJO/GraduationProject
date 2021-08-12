@@ -1,12 +1,17 @@
 package com.daerong.graduationproject.insertcar
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.daerong.graduationproject.databinding.FragmentInsertCarInfoBinding
 import com.daerong.graduationproject.viewmodel.InsertCarViewModel
 
@@ -44,6 +49,11 @@ class InsertCarInfoFragment : Fragment() {
                 binding!!.carNum.text = it
             })
             carPhotoUri.observe(viewLifecycleOwner, Observer {
+                Glide.with(binding!!.root)
+                        .load(it[0])
+                        .override(500,200)
+                        .apply (RequestOptions.bitmapTransform(CircleCrop()))
+                        .into(binding!!.carImg)
             })
         }
     }

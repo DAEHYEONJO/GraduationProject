@@ -495,8 +495,13 @@ class InsertCarActivity : AppCompatActivity() {
             REQUEST_CAMERAX->{
                 if (resultCode == RESULT_OK){
                     val imgCheckedList = data?.getSerializableExtra("imgCheckedList") as ArrayList<String>
+                    val imgUriList = ArrayList<Uri>()
                     imgCheckedList.forEach {
-                        Log.d("onActivityResult",it.toString())
+                        imgUriList.add(Uri.parse(it))
+                    }
+                    insertCarViewModel.carPhotoUri.value = imgUriList
+                    insertCarViewModel.carPhotoUri.value!!.forEach {
+                        Log.d("onActivityResult", "넘어온 viewmodel uri : ${it.toString()}")
                     }
                 }
             }
