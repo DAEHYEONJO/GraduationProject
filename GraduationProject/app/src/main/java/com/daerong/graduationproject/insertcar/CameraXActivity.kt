@@ -1,10 +1,14 @@
 package com.daerong.graduationproject.insertcar
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -12,9 +16,16 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.daerong.graduationproject.R
+import com.daerong.graduationproject.adapter.CameraImgAdapter
+import com.daerong.graduationproject.data.CameraX
 import com.daerong.graduationproject.databinding.ActivityCameraXBinding
+import com.daerong.graduationproject.viewmodel.CameraXViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.concurrent.ExecutorService
@@ -29,17 +40,57 @@ class CameraXActivity : AppCompatActivity() {
     private lateinit var outputDirectory : File
     private lateinit var cameraExecutor : ExecutorService
 
+    private lateinit var cameraImgAdapter: CameraImgAdapter
+    private val cameraXViewModel : CameraXViewModel by viewModels<CameraXViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val actionBar = supportActionBar
+        actionBar?.hide()
+        
         binding = ActivityCameraXBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initBtn()
+        initCameraXAdapter()
         startCamera()
-        binding.cameraCaptureBtn.setOnClickListener {
+        binding.imgCaputreBtn.setOnClickListener {
             takePhoto()
         }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
+    }
+
+    private fun initBtn() {
+        binding.apply {
+            completeBtn.setOnClickListener {
+                val checkedList = ArrayList<String>()
+                cameraImgAdapter.imgList.forEachIndexed { index, cameraX ->
+                    if (cameraX.checked) {
+                        Log.d("photoChecked","${index} : ${cameraX.uri}")
+                        checkedList.add(cameraX.toString())
+                    }
+                    else Log.d("photoChecked","not checked ${index} : ${cameraX.uri}")
+                }
+                Log.d("photoChecked","backBtn clicked2")
+                val intent = Intent()
+                intent.putExtra("imgCheckedList",checkedList)
+                setResult(Activity.RESULT_OK,intent)
+                finish()
+            }
+        }
+    }
+
+    private fun initCameraXAdapter(){
+        cameraImgAdapter = CameraImgAdapter(ArrayList<CameraX>(), this)
+        cameraImgAdapter.listener = object : CameraImgAdapter.OnImageClickListener{
+            override fun onClick(cameraX: CameraX) {
+
+            }
+        }
+        binding.imgRecyclerView.run {
+            layoutManager = LinearLayoutManager(this@CameraXActivity,LinearLayoutManager.HORIZONTAL,false)
+            adapter = cameraImgAdapter
+        }
     }
 
     private fun getOutputDirectory(): File {
@@ -65,6 +116,10 @@ class CameraXActivity : AppCompatActivity() {
                     val savedUri : Uri = Uri.fromFile(photoFile)
                     val msg = "사진캡쳐성공: $savedUri"
                     //Glide.with(binding.root).load(savedUri).into(binding.caputedImg)
+                    val cameraX = CameraX(savedUri)
+                    cameraImgAdapter.imgList.add(cameraX)
+                    cameraImgAdapter.notifyItemInserted(cameraImgAdapter.itemCount-1)
+                    binding.imgRecyclerView.scrollToPosition(cameraImgAdapter.itemCount-1)
                     Toast.makeText(this@CameraXActivity, msg, Toast.LENGTH_SHORT).show()
                     Log.d("CameraX", msg)
                 }
@@ -76,6 +131,7 @@ class CameraXActivity : AppCompatActivity() {
         )
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun newJpgFileName(): String {
         val sdf = SimpleDateFormat("yyyyMMdd_HHmmss")
         val filename = sdf.format(System.currentTimeMillis())

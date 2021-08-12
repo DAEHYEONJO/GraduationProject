@@ -25,6 +25,7 @@ import androidx.lifecycle.Observer
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.adapter.CustomInfoWindowAdapter
 import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.data.CameraX
 import com.daerong.graduationproject.data.DistName
 import com.daerong.graduationproject.data.InsertCar
 import com.daerong.graduationproject.data.ParkingLot
@@ -61,6 +62,7 @@ import kotlin.properties.Delegates
 class InsertCarActivity : AppCompatActivity() {
 
     private val REQUEST_TAKE_PHOTO: Int = 10
+    private val REQUEST_CAMERAX : Int = 300
     private lateinit var binding : ActivityInsertCarBinding
     private lateinit var mapFr : SupportMapFragment
     private lateinit var googleMap : GoogleMap
@@ -217,7 +219,7 @@ class InsertCarActivity : AppCompatActivity() {
             parkingCamera.setOnClickListener {
                 Log.i("cameraclick","cameraclick")
                 //captureCamera()
-                startActivityForResult(Intent(this@InsertCarActivity,CameraXActivity::class.java),2000)
+                startActivityForResult(Intent(this@InsertCarActivity,CameraXActivity::class.java),REQUEST_CAMERAX)
             }
         }
     }
@@ -488,6 +490,14 @@ class InsertCarActivity : AppCompatActivity() {
                     }
                 } else {
                     Toast.makeText(this, "사진찍기 취소", Toast.LENGTH_SHORT).show()
+                }
+            }
+            REQUEST_CAMERAX->{
+                if (resultCode == RESULT_OK){
+                    val imgCheckedList = data?.getSerializableExtra("imgCheckedList") as ArrayList<String>
+                    imgCheckedList.forEach {
+                        Log.d("onActivityResult",it.toString())
+                    }
                 }
             }
         }
