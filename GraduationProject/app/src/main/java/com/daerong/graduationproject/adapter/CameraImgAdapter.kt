@@ -3,19 +3,21 @@ package com.daerong.graduationproject.adapter
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.daerong.graduationproject.data.CameraX
+import com.daerong.graduationproject.databinding.ActivityCameraXBinding
 import com.daerong.graduationproject.databinding.CameraImageRawBinding
+import kotlinx.android.synthetic.main.activity_camera_x.view.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-class CameraImgAdapter( var imgList : ArrayList<CameraX>, val context : Context) : RecyclerView.Adapter<CameraImgAdapter.ViewHolder>() {
+class CameraImgAdapter( var imgList : ArrayList<CameraX>, val b : ActivityCameraXBinding) : RecyclerView.Adapter<CameraImgAdapter.ViewHolder>() {
 
-    interface OnImageClickListener{
-        fun onClick(cameraX: CameraX)
-    }
 
-    var listener : OnImageClickListener? = null
 
     inner class ViewHolder(val binding : CameraImageRawBinding):RecyclerView.ViewHolder(binding.root){
         init {
@@ -40,11 +42,15 @@ class CameraImgAdapter( var imgList : ArrayList<CameraX>, val context : Context)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Glide.with(holder.binding.root).load(imgList[position].uri).centerCrop().into(holder.binding.captureImg)
+        CoroutineScope(Dispatchers.Main).launch {
+
+            Glide.with(holder.binding.root).load(imgList[position].file).centerCrop().skipMemoryCache(false).useAnimationPool(true).into(holder.binding.captureImg)
+        }
+
         holder.binding.toggleBtn.isChecked = imgList[position].checked
         //holder.binding.captureImg.setImageURI(imgList[position].uri)
         Log.i("CameraImgAdapter","onBindViewHolder ~ ${holder.binding.toggleBtn.isChecked } / ${imgList[position].checked}" )
-        Log.i("CameraImgAdapter","onBindViewHolder ~ ${imgList[position].uri.toString()}" )
+        Log.i("CameraImgAdapter","onBindViewHolder ~ ${imgList[position].file.toString()}" )
     }
 
     override fun getItemCount(): Int = imgList.size

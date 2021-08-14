@@ -48,7 +48,7 @@ class InsertCarInfoFragment : Fragment() {
             curCarNum.observe(viewLifecycleOwner, Observer {
                 binding!!.carNum.text = it
             })
-            carPhotoUri.observe(viewLifecycleOwner, Observer {
+            carPhotoFile.observe(viewLifecycleOwner, Observer {
                 Glide.with(binding!!.root)
                         .load(it[0])
                         .override(500,200)

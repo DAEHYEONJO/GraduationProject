@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-feature
         android:name="android.hardware.camera.any"
@@ -42,13 +43,24 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
         android:theme="@style/Theme.GraduationProject">
-        <activity android:name=".TestActivity">
+        <activity android:name=".main.SelectFunctionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.ExitCarService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".TestActivity" />
         <activity android:name=".insertcar.CameraXActivity" />
 
         <provider
@@ -61,13 +73,9 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".insertcar.InsertCarActivity"
+        <activity
+            android:name=".insertcar.InsertCarActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <meta-data
