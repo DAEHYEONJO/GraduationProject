@@ -4,12 +4,19 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.IBinder
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import com.bumptech.glide.Glide
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.data.InsertCar
 import com.daerong.graduationproject.insertcar.InsertCarActivity
+import com.daerong.graduationproject.main.SelectFunctionActivity
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -17,6 +24,7 @@ import java.util.*
 
 class ExitCarService : Service() {
 
+    private val REQUEST_CODE = 100
     private var notificationId = 10
     private lateinit var manager: NotificationManager
 
@@ -50,6 +58,7 @@ class ExitCarService : Service() {
     }
 
     private fun observeCarState(){
+        Log.d("ExitCarService", "observeCarState")
         val db = Firebase.firestore.collection("CarList")
         db.addSnapshotListener { value, error ->
             if (error!=null) return@addSnapshotListener
@@ -62,36 +71,57 @@ class ExitCarService : Service() {
                         val carNum = curDocument["carNum"].toString()
                         val parkingLotName = curDocument["parkingLotName"].toString()
                         val parkingSection = curDocument["parkingSection"].toString()
+                        val managed = curDocument["managed"].toString()
+                        val car = InsertCar(parkingLotName = parkingLotName,parkingSection = parkingSection, carNum = carNum, carStatus = 2, managed = managed)
                         Log.d("ExitCarService", "${carNum}//${parkingLotName}//${parkingSection}")
-                        makePendingIntent(carNum,parkingLotName,parkingSection)
+                        makePendingIntent(car)
                     }
                 }
             }
         }
     }
 
-    private fun makePendingIntent(c_num:String, c_name:String, c_section : String){
-        val id = "exitCar${c_num}"
+    private fun makePendingIntent(car : InsertCar){
+        val id = "exitCar${car.carNum}"
         val name = "whoAccept"
+        val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build()
         val notificationChannel = NotificationChannel(id,name,NotificationManager.IMPORTANCE_HIGH)
         notificationChannel.apply {
             enableLights(true)
             enableVibration(true)
             lightColor = Color.BLUE
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            setSound(sound,audioAttributes)
         }
+        val notificationLayout = RemoteViews(packageName,R.layout.notification_exit_car_small)
+        val notificationLayoutExpanded = RemoteViews(packageName,R.layout.notification_exit_car_large)
+        notificationLayout.setTextViewText(R.id.car_num_small,car.carNum)
+        notificationLayout.setTextViewText(R.id.parking_lot_name_small,car.parkingLotName)
+        notificationLayout.setTextViewText(R.id.parking_lot_section_small,car.parkingSection)
+        notificationLayout.setImageViewResource(R.id.img_small,R.drawable.ic_baseline_alarm_24)
+
+        notificationLayoutExpanded.setTextViewText(R.id.car_num_large,car.carNum)
+        notificationLayoutExpanded.setTextViewText(R.id.parking_lot_name_large,car.parkingLotName)
+        notificationLayoutExpanded.setTextViewText(R.id.parking_lot_section_large,car.parkingSection)
+        notificationLayoutExpanded.setImageViewResource(R.id.img_large,R.drawable.ic_baseline_alarm_24)
 
         val notificationBuilder = NotificationCompat.Builder(this,id)
         notificationBuilder.setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("출차 알람 메세지")
-            .setContentText("$c_num / $c_name / $c_section")
-            .setAutoCancel(true)
-            .setDefaults(Notification.FLAG_NO_CLEAR)
+                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(notificationLayout)
+                .setCustomBigContentView(notificationLayoutExpanded)
+                .setAutoCancel(true)
+                .setDefaults(Notification.FLAG_NO_CLEAR)
 
-        val intent = Intent(this, InsertCarActivity::class.java)
+        val intent = Intent(this, SelectFunctionActivity::class.java)
+        intent.putExtra("carInfo",car)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
 
-        val pendingIntent = PendingIntent.getActivities(this,100, arrayOf(intent),PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivities(this,REQUEST_CODE, arrayOf(intent),PendingIntent.FLAG_UPDATE_CURRENT)
         notificationBuilder.setContentIntent(pendingIntent)
 
         val notification = notificationBuilder.build()
