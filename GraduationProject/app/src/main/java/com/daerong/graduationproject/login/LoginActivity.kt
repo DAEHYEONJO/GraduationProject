@@ -1,34 +1,28 @@
 package com.daerong.graduationproject.login
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentValues.TAG
-import android.content.Context
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
 import android.widget.ArrayAdapter
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.data.User
 import com.daerong.graduationproject.databinding.ActivityLoginBinding
 import com.daerong.graduationproject.databinding.WarningDialogBinding
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
-import com.minew.device.baseblelibaray.a.e
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.*
 
 class LoginActivity : AppCompatActivity() {
 
     private val myPreference = GlobalApplication.prefs
-    private val db = GlobalApplication.db
+    private val db = Firebase.firestore
     private val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {
             Log.e("KakaoLogin", "로그인 실패", error)
@@ -57,6 +51,8 @@ class LoginActivity : AppCompatActivity() {
         initBtn()
 
     }
+
+
 
     private fun initBtn() {
         binding.apply {
@@ -164,7 +160,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun registerDb(name : String){
-        db.collection("User").document(name).set(User(name,workSpace))
+        db.collection("User").document(name).set(User(name, workSpace))
     }
 
 }
