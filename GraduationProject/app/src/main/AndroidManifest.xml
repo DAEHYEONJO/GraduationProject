@@ -12,6 +12,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
     <uses-feature
         android:name="android.hardware.camera.any"
@@ -37,6 +41,7 @@
         </intent>
     </queries>
 
+
     <application
         android:name=".application.GlobalApplication"
         android:allowBackup="true"
@@ -45,6 +50,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
+
         <activity android:name=".TestActivity">
 
         </activity>
@@ -62,11 +68,17 @@
 
         <activity android:name=".insertcar.InsertCarActivity"
             android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".licenseplate.CheckNumberAcitivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".insertcar.InsertCarActivity">
+
         </activity>
 
         <meta-data
@@ -79,10 +91,12 @@
             android:name="com.kakao.sdk.AppKey"
             android:value="@string/kakao_native_app_key" />
 
+
         <activity android:name=".login.LoginActivity" />
         <activity android:name=".MainActivity2" />
         <activity android:name=".TestDrawActivity" />
         <activity android:name=".MainActivity" />
+
 
         <service android:name="com.minew.beaconset.ConnectService" />
 
