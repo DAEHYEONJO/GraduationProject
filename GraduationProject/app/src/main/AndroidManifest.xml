@@ -53,10 +53,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">-
         <activity android:name=".main.SelectFunctionActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
         </activity>
 
         <service
@@ -80,6 +77,10 @@
         <activity
             android:name=".insertcar.InsertCarActivity"
             android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".licenseplate.CheckNumberAcitivity">
 
