@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/main_text_large"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/black"
+        style="@style/TextAppearance.Compat.Notification.Title"
+        android:text="출차 요청이 들어왔어요!"/>
+    <ImageView
+        android:id="@+id/img_large"
+        android:layout_width="14dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/main_text_large"
+        android:src="@drawable/ic_baseline_alarm_24"/>
+    <TextView
+        android:id="@+id/sub_title1_large"
+        android:textColor="@color/black"
+        android:layout_below="@+id/main_text_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.Compat.Notification.Info"
+        android:text="차량 번호 : "/>
+    <TextView
+        android:id="@+id/car_num_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/sub_title1_large"
+        android:layout_below="@+id/main_text_large"
+        style="@style/TextAppearance.Compat.Notification.Info"
+        android:textColor="@color/black"
+        android:text="111나3333"/>
+    <TextView
+        android:id="@+id/sub_title2_large"
+        android:textColor="@color/black"
+        android:layout_below="@+id/sub_title1_large"
+        style="@style/TextAppearance.Compat.Notification.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="주차장 : "/>
+    <TextView
+        android:id="@+id/parking_lot_name_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.Compat.Notification.Info"
+        android:layout_toRightOf="@+id/sub_title2_large"
+        android:layout_below="@+id/car_num_large"
+        android:textColor="@color/black"
+        android:text="000주차장"/>
+    <TextView
+        android:id="@+id/sub_title3_large"
+        android:textColor="@color/black"
+        android:layout_below="@+id/sub_title2_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.Compat.Notification.Info"
+        android:text="주차 구역 : "/>
+    <TextView
+        android:id="@+id/parking_lot_section_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/parking_lot_name_large"
+        android:layout_toRightOf="@id/sub_title3_large"
+        style="@style/TextAppearance.Compat.Notification.Info"
+        android:textColor="@color/black"
+        android:text="0구역"/>
+
+</RelativeLayout>

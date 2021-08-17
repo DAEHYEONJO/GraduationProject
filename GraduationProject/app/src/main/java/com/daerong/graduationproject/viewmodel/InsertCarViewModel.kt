@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.daerong.graduationproject.data.ParkingLot
 import com.google.android.gms.maps.model.LatLng
+import java.io.File
 import java.util.*
 
 class InsertCarViewModel:ViewModel() {
@@ -14,7 +15,7 @@ class InsertCarViewModel:ViewModel() {
     var curParkingLotName = MutableLiveData<String>()
     var curCarNum = MutableLiveData<String>()
     var curParkingLotSection = MutableLiveData<String>()
-    var carPhotoUri = MutableLiveData<Uri>()
+    var carPhotoFile = MutableLiveData<ArrayList<File>>()
 
     init {
         curParkingLotName.value = ""

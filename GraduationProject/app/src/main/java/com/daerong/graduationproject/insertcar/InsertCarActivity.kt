@@ -25,6 +25,7 @@ import androidx.lifecycle.Observer
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.adapter.CustomInfoWindowAdapter
 import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.data.CameraX
 import com.daerong.graduationproject.data.DistName
 import com.daerong.graduationproject.data.InsertCar
 import com.daerong.graduationproject.data.ParkingLot
@@ -37,14 +38,19 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.lang.Exception
 import java.lang.Math.cos
@@ -61,6 +67,7 @@ import kotlin.properties.Delegates
 class InsertCarActivity : AppCompatActivity() {
 
     private val REQUEST_TAKE_PHOTO: Int = 10
+    private val REQUEST_CAMERAX : Int = 300
     private lateinit var binding : ActivityInsertCarBinding
     private lateinit var mapFr : SupportMapFragment
     private lateinit var googleMap : GoogleMap
@@ -83,7 +90,7 @@ class InsertCarActivity : AppCompatActivity() {
 
     private val insertCarViewModel : InsertCarViewModel by viewModels<InsertCarViewModel>()
     private val db = Firebase.firestore
-    private val storage = Firebase.storage
+
     private val parkingLotMap = HashMap<LatLng,ParkingLot>()//db에서 가져올때 viewmodel 초기화 용도 변수
     private val mutex = Mutex()
 
@@ -194,14 +201,7 @@ class InsertCarActivity : AppCompatActivity() {
         return radius*c*1000
     }
 
-    private fun initValuesForDbTest() {
-        GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
-        insertCarViewModel.run {
-            curCarNum.value = "111가2222"
-            curParkingLotSection.value = "A"
 
-        }
-    }
 
     private fun initBtn() {
         binding.apply {
@@ -213,13 +213,59 @@ class InsertCarActivity : AppCompatActivity() {
             }
             completeBtn.setOnClickListener {
                 insertCurCar()
+
             }
             parkingCamera.setOnClickListener {
                 Log.i("cameraclick","cameraclick")
                 //captureCamera()
-                startActivityForResult(Intent(this@InsertCarActivity,CameraXActivity::class.java),2000)
+                startActivityForResult(Intent(this@InsertCarActivity,CameraXActivity::class.java),REQUEST_CAMERAX)
+            }
+            testBtn.setOnClickListener {
+                val mediaDir = externalMediaDirs.firstOrNull().let {it->
+                    File(it, resources.getString(R.string.app_name)).apply {
+                    }
+                }
+                mediaDir.listFiles().forEach {
+                    Log.d("filesList",it.name.toString())
+                    it.delete()
+                }
+                Log.d("filesList",mediaDir.listFiles().size.toString())
             }
         }
+    }
+
+    private fun savePhotos() {
+        val curCarNum = insertCarViewModel.curCarNum.value
+        /*val uploadFiles = ArrayList<File>()
+        insertCarViewModel.carPhotoFile.value?.forEach { originFile ->
+            val oldFile = File(originFile.toString())
+            val addString = "${insertCarViewModel.curCarNum.value}_${oldFile.name}"
+            val newNameFile = File(oldFile.parent,addString)
+            Log.d("savePhotos", "newNameFile : $newNameFile")
+            if (oldFile.exists()){
+                Log.d("savePhotos", "뷰모델에 저장된 파일 객체 존재")
+                if (oldFile.renameTo(newNameFile)){
+                    Log.d("savePhotos", "파일명 변경 성공3")
+                    uploadFiles.add(newNameFile)
+                }else{
+                    Log.d("savePhotos", "파일명 변경 실패")
+                }
+            }else {
+                Log.d("savePhotos", "뷰모델에 저장된 파일 객체 미존재")
+            }
+        }*/
+        val storage = FirebaseStorage.getInstance()
+        val imagesRef = storage.reference
+        val imageChild = imagesRef.child(curCarNum!!)
+        insertCarViewModel.carPhotoFile.value?.forEach {
+            imageChild.child(it.name).putFile(Uri.fromFile(it))
+                    .addOnSuccessListener {
+                        Log.i("savePhotos","success : ${it.toString()}")
+                    }.addOnFailureListener {
+                        Log.e("savePhotos","fail : ${it.toString()}")
+                    }
+        }
+
     }
 
 
@@ -261,6 +307,15 @@ class InsertCarActivity : AppCompatActivity() {
 
     }
 
+    private fun initValuesForDbTest() {
+        GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
+        insertCarViewModel.run {
+            curCarNum.value = "111나1116"
+            curParkingLotSection.value = "A"
+
+        }
+    }
+
     private fun insertCurCar() {
         //1. 필수 정보(주차장이름, 차량번호, 주차구역정)의 not null 여부 확인하기
         val curParkingLotName = insertCarViewModel.curParkingLotName.value
@@ -280,7 +335,7 @@ class InsertCarActivity : AppCompatActivity() {
                 if (curCarCount<maxCarCount){
                     //curCarCount +1 하기
                     //차량 객체 생성해서 db에 등록하기
-                    docRef.update("curCarCount",curCarCount+1)
+
                     val insertCar = InsertCar(
                         parkingLotName = curParkingLotName,
                         parkingSection = curParkingSection!!,
@@ -288,7 +343,36 @@ class InsertCarActivity : AppCompatActivity() {
                         carStatus = 2,
                         managed = GlobalApplication.prefs.getString("id","")
                     )
-                    db.collection("CarList").document(curCarNum).set(insertCar)
+                    val doc = db.collection("CarList")
+                    var flag = false
+                    doc.get().addOnSuccessListener {
+                        for (doc in it){
+                            if (doc.id == curCarNum){
+                                flag = true
+                                return@addOnSuccessListener
+                            }
+                        }
+                    }.addOnCompleteListener {
+                        if (!flag){
+                            doc.document(curCarNum).set(insertCar)
+                                    .addOnCompleteListener {
+                                        var size : Int = 0
+                                        doc.get().addOnSuccessListener {
+                                            size = it.documents.stream().filter { it["parkingLotName"]==curParkingLotName }.toArray().size
+                                        }.addOnCompleteListener {
+                                            Log.d("insertCurCar","complete : ${size}")
+                                            docRef.update("curCarCount",size)
+                                        }
+                                    }.addOnFailureListener {
+                                        Log.e("insertCurCar","fail ${it.toString()}")
+                                    }
+                            savePhotos()
+                        }else{
+                            Toast.makeText(this@InsertCarActivity, "동일 차량 존재", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+
                 }else{
                     Toast.makeText(this@InsertCarActivity, "입차 불가", Toast.LENGTH_SHORT).show()
                 }
@@ -488,6 +572,16 @@ class InsertCarActivity : AppCompatActivity() {
                     }
                 } else {
                     Toast.makeText(this, "사진찍기 취소", Toast.LENGTH_SHORT).show()
+                }
+            }
+            REQUEST_CAMERAX->{
+                if (resultCode == RESULT_OK){
+                    val imgCheckedList = data?.getSerializableExtra("imgCheckedList") as ArrayList<File>
+                    insertCarViewModel.carPhotoFile.value = imgCheckedList
+                    insertCarViewModel.carPhotoFile.value!!.forEach {
+                        Log.d("onActivityResult", "넘어온 viewmodel file : ${it.toString()}")
+                    }
+
                 }
             }
         }

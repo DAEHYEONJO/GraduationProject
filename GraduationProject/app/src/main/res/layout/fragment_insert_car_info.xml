@@ -15,9 +15,8 @@
         <ImageView
             android:id="@+id/car_img"
             android:src="@drawable/car"
-            android:background="@drawable/gps_my_loc_background"
-            android:backgroundTint="#C1F0F6"
-            android:padding="10dp"
+            android:background="@drawable/gps_my_loc_background_color"
+            android:padding="5dp"
             android:layout_width="80dp"
             android:layout_height="80dp"/>
 
@@ -36,7 +35,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="4"
                     android:text="주차장 미선택"
-                    android:gravity="center_vertical"
+                    android:gravity="top"
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
@@ -59,7 +58,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="차량번호 미인식"
-                android:gravity="center_vertical"
+                android:gravity="bottom"
                 android:layout_marginLeft="10dp"
                 android:textColor="@color/black"
                 android:textSize="20sp"/>

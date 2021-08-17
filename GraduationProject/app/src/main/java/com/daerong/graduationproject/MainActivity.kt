@@ -15,7 +15,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.daerong.graduationproject.adapter.BeaconAdapter
 import com.daerong.graduationproject.data.BeaconData
+import com.daerong.graduationproject.data.BeaconLocation
 import com.daerong.graduationproject.databinding.ActivityMainBinding
 import com.minew.beaconset.BluetoothState
 import com.minew.beaconset.MinewBeacon
@@ -321,12 +323,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getLocationWithTrilateration(
-        beaconA: BeaconLocation,
-        beaconB: BeaconLocation,
-        beaconC: BeaconLocation,
-        distanceA: Double,
-        distanceB: Double,
-        distanceC: Double
+            beaconA: BeaconLocation,
+            beaconB: BeaconLocation,
+            beaconC: BeaconLocation,
+            distanceA: Double,
+            distanceB: Double,
+            distanceC: Double
     ): BeaconLocation {
         val W: Double
         val Z: Double
