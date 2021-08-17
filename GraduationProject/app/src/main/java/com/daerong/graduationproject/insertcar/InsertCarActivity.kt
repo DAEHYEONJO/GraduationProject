@@ -38,7 +38,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -199,14 +201,7 @@ class InsertCarActivity : AppCompatActivity() {
         return radius*c*1000
     }
 
-    private fun initValuesForDbTest() {
-        GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
-        insertCarViewModel.run {
-            curCarNum.value = "333가2222"
-            curParkingLotSection.value = "A"
 
-        }
-    }
 
     private fun initBtn() {
         binding.apply {
@@ -312,6 +307,15 @@ class InsertCarActivity : AppCompatActivity() {
 
     }
 
+    private fun initValuesForDbTest() {
+        GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
+        insertCarViewModel.run {
+            curCarNum.value = "111나1116"
+            curParkingLotSection.value = "A"
+
+        }
+    }
+
     private fun insertCurCar() {
         //1. 필수 정보(주차장이름, 차량번호, 주차구역정)의 not null 여부 확인하기
         val curParkingLotName = insertCarViewModel.curParkingLotName.value
@@ -331,7 +335,7 @@ class InsertCarActivity : AppCompatActivity() {
                 if (curCarCount<maxCarCount){
                     //curCarCount +1 하기
                     //차량 객체 생성해서 db에 등록하기
-                    docRef.update("curCarCount",curCarCount+1)
+
                     val insertCar = InsertCar(
                         parkingLotName = curParkingLotName,
                         parkingSection = curParkingSection!!,
@@ -339,8 +343,36 @@ class InsertCarActivity : AppCompatActivity() {
                         carStatus = 2,
                         managed = GlobalApplication.prefs.getString("id","")
                     )
-                    db.collection("CarList").document(curCarNum).set(insertCar)
-                    savePhotos()
+                    val doc = db.collection("CarList")
+                    var flag = false
+                    doc.get().addOnSuccessListener {
+                        for (doc in it){
+                            if (doc.id == curCarNum){
+                                flag = true
+                                return@addOnSuccessListener
+                            }
+                        }
+                    }.addOnCompleteListener {
+                        if (!flag){
+                            doc.document(curCarNum).set(insertCar)
+                                    .addOnCompleteListener {
+                                        var size : Int = 0
+                                        doc.get().addOnSuccessListener {
+                                            size = it.documents.stream().filter { it["parkingLotName"]==curParkingLotName }.toArray().size
+                                        }.addOnCompleteListener {
+                                            Log.d("insertCurCar","complete : ${size}")
+                                            docRef.update("curCarCount",size)
+                                        }
+                                    }.addOnFailureListener {
+                                        Log.e("insertCurCar","fail ${it.toString()}")
+                                    }
+                            savePhotos()
+                        }else{
+                            Toast.makeText(this@InsertCarActivity, "동일 차량 존재", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+
                 }else{
                     Toast.makeText(this@InsertCarActivity, "입차 불가", Toast.LENGTH_SHORT).show()
                 }

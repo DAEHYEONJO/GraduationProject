@@ -24,6 +24,11 @@ class SelectFunctionActivity : AppCompatActivity() {
             Toast.makeText(this,"전달된 intent 없음", Toast.LENGTH_SHORT).show()
         }
         initService()
+        initBottomNavigation()
+    }
+
+    private fun initBottomNavigation() {
+
     }
 
     private fun initService() {
@@ -33,8 +38,17 @@ class SelectFunctionActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Log.d("onNewIntent","intent 도착")
-        val carInfo = intent?.getSerializableExtra("carInfo") as InsertCar
-        Toast.makeText(this,"onNewIntent ${carInfo.carNum} / ${carInfo.parkingLotName}", Toast.LENGTH_SHORT).show()
+        if (intent!=null){
+            if (intent.hasExtra("carInfo")){
+                Log.d("SelectFunctionActivity","intent 도착")
+                val carInfo = intent?.getSerializableExtra("carInfo") as InsertCar
+                Toast.makeText(this,"onNewIntent ${carInfo.carNum} / ${carInfo.parkingLotName}", Toast.LENGTH_SHORT).show()
+            } else{
+                Log.d("SelectFunctionActivity","intent 없음")
+                Toast.makeText(this,"onNewIntent 전달없음", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
     }
 }

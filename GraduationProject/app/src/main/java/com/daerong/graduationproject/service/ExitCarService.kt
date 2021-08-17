@@ -21,6 +21,8 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.abs
 
 class ExitCarService : Service() {
 
@@ -35,7 +37,9 @@ class ExitCarService : Service() {
     override fun onCreate() {
         Log.d("ExitCarService", "onCreate")
         super.onCreate()
+
         makeNotification()
+        observeCarState()
     }
 
     private fun makeNotification() {
@@ -53,7 +57,7 @@ class ExitCarService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("ExitCarService", "onStartCommand")
-        observeCarState()
+
         return START_STICKY//시스템에 의해 종료되면 재시작하기
     }
 
@@ -72,7 +76,7 @@ class ExitCarService : Service() {
                         val parkingLotName = curDocument["parkingLotName"].toString()
                         val parkingSection = curDocument["parkingSection"].toString()
                         val managed = curDocument["managed"].toString()
-                        val car = InsertCar(parkingLotName = parkingLotName,parkingSection = parkingSection, carNum = carNum, carStatus = 2, managed = managed)
+                        val car = InsertCar(parkingLotName = parkingLotName,parkingSection = parkingSection, carNum = carNum, carStatus = 1, managed = managed)
                         Log.d("ExitCarService", "${carNum}//${parkingLotName}//${parkingSection}")
                         makePendingIntent(car)
                     }
@@ -82,7 +86,7 @@ class ExitCarService : Service() {
     }
 
     private fun makePendingIntent(car : InsertCar){
-        val id = "exitCar${car.carNum}"
+        val id = "exitCar"
         val name = "whoAccept"
         val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val audioAttributes = AudioAttributes.Builder()
@@ -115,13 +119,13 @@ class ExitCarService : Service() {
                 .setCustomContentView(notificationLayout)
                 .setCustomBigContentView(notificationLayoutExpanded)
                 .setAutoCancel(true)
-                .setDefaults(Notification.FLAG_NO_CLEAR)
 
         val intent = Intent(this, SelectFunctionActivity::class.java)
         intent.putExtra("carInfo",car)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
 
-        val pendingIntent = PendingIntent.getActivities(this,REQUEST_CODE, arrayOf(intent),PendingIntent.FLAG_UPDATE_CURRENT)
+        Log.d("ExitCarService","notificationid : $notificationId")
+        val pendingIntent = PendingIntent.getActivities(this, abs(Random().nextInt()), arrayOf(intent),PendingIntent.FLAG_UPDATE_CURRENT)
         notificationBuilder.setContentIntent(pendingIntent)
 
         val notification = notificationBuilder.build()
