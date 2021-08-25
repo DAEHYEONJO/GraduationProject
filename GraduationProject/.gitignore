@@ -14,3 +14,4 @@
 .externalNativeBuild
 .cxx
 local.properties
+/opencv/build/outputs/aar/opencv-debug.aar 
