@@ -18,7 +18,6 @@ class MyBottomSheetDialog(private val carData: InsertCar) : BottomSheetDialogFra
     lateinit var binding: BottomSheetLayoutBinding
     private val db = Firebase.firestore
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = BottomSheetLayoutBinding.inflate(layoutInflater, container, false)
@@ -27,6 +26,9 @@ class MyBottomSheetDialog(private val carData: InsertCar) : BottomSheetDialogFra
         binding.parkingLotView.text = "${carData.parkingLotName} ${carData.parkingSection}구역"
         binding.exitCompleteBtn.setOnClickListener {
             Toast.makeText(context, "출차 완료 버튼 클릭", Toast.LENGTH_SHORT).show()
+
+            removeGeofence()
+
             val docRef = db.collection("CarList").document(carData.carNum)
             docRef.get().addOnSuccessListener {
                 val parkingLot = it["parkingLotName"].toString()
@@ -45,6 +47,21 @@ class MyBottomSheetDialog(private val carData: InsertCar) : BottomSheetDialogFra
         }
 
         return binding.root
+    }
+
+    private fun removeGeofence(){
+        val carListFragment = (parentFragment as CarListFragment)
+        carListFragment.geofencingClient.removeGeofences(carListFragment.geofencePendingIntent)
+                .addOnSuccessListener {
+                    Log.d("GeofenceRemove","geofence remove success")
+                }.addOnFailureListener {
+                    Log.e("GeofenceRemove","geofence remove fail")
+                }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
     }
 
 }

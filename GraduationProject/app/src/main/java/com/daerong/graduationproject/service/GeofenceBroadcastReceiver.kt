@@ -26,6 +26,11 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val geofenceTransition = geofencingEvent.geofenceTransition//발생한 이벤트 타입
         //지오펜트 구역에 진입 또는 exit한경우
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT){
+
+            if (carNum != null) {
+                Firebase.firestore.collection("CarList").document(carNum).update("approachStatus",true)
+            }
+
             val triggeringGeofences = geofencingEvent.triggeringGeofences
             val transitionMsg = when(geofenceTransition){
                 Geofence.GEOFENCE_TRANSITION_ENTER->"Enter geofence"

@@ -55,7 +55,13 @@
             android:exported="true"></receiver>
 
         <activity android:name=".licenseplate.TestGetNumActivity"></activity>
-        <activity android:name=".main.SelectFunctionActivity"></activity>
+        <activity android:name=".main.SelectFunctionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
 
         <service
@@ -64,11 +70,7 @@
             android:exported="true" />
 
         <activity android:name=".TestActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".insertcar.CameraXActivity" />
 
