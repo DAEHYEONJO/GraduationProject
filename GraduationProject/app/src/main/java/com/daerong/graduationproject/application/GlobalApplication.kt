@@ -48,7 +48,7 @@ class GlobalApplication : Application() {
         val anim = AnimationUtils.loadAnimation(activity,R.anim.loading)
         binding.image.animation = anim
         //Glide.with(binding.root).load(R.drawable.ic_baseline_photo_camera_24).into(binding.loadingImgView)
-        // Glide.with(binding.root).asGif().load(R.drawable.loading).into(binding.loadingImgView)
+        //Glide.with(binding.root).asGif().load(R.drawable.loading).into(binding.loadingImgView)
         //binding.loadingImgView.setImageResource(R.drawable.loading)
         progressDialog = AppCompatDialog(activity)
         progressDialog!!.run {

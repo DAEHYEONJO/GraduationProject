@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/car_list"
+    <item android:id="@+id/car_list_menu"
+        android:icon="@drawable/ic_baseline_format_list_numbered_24"
+        android:enabled="true"
+        android:iconTint="@color/white"
         android:title="차량목록"/>
+    <item android:id="@+id/insert_car_menu"
+        android:icon="@drawable/ic_baseline_directions_car_24"
+        android:enabled="true"
+        android:iconTint="@color/white"
+        android:title="입차"/>
+    <item android:id="@+id/radio_menu"
+        android:icon="@drawable/ic_baseline_adb_24"
+        android:enabled="true"
+        android:iconTint="@color/white"
+        android:title="무전"/>
 </menu>
