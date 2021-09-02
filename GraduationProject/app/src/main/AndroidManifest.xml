@@ -62,7 +62,13 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".TestActivity" />
+        <activity android:name=".TestActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".insertcar.CameraXActivity" />
 
         <provider
@@ -78,11 +84,7 @@
         <activity
             android:name=".insertcar.InsertCarActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".licenseplate.CheckNumberAcitivity" />
 

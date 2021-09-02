@@ -8,6 +8,8 @@ import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
@@ -19,6 +21,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             return
         }
 
+        val carNum = intent.getStringExtra("carNum")
+        Log.d("GeofenceBroadcastReceiver","carNum : $carNum")
         val geofenceTransition = geofencingEvent.geofenceTransition//발생한 이벤트 타입
         //지오펜트 구역에 진입 또는 exit한경우
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT){
