@@ -174,7 +174,6 @@ class InsertCarActivity : AppCompatActivity() {
                             }
                         }
                     }
-
                 }
                 insertCarViewModel.parkingLotMap.value=parkingLotMap
                 insertCarViewModel.parkingLotMap.value!!.entries.forEach {
@@ -200,8 +199,6 @@ class InsertCarActivity : AppCompatActivity() {
         val c = 2* asin(sqrt(a))//두점사이 각도
         return radius*c*1000
     }
-
-
 
     private fun initBtn() {
         binding.apply {
@@ -310,7 +307,7 @@ class InsertCarActivity : AppCompatActivity() {
     private fun initValuesForDbTest() {
         GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
         insertCarViewModel.run {
-            curCarNum.value = "777다3333"
+            curCarNum.value = "123하1234"
             curParkingLotSection.value = "A"
 
         }

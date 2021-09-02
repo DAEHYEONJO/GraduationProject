@@ -6,8 +6,8 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="28"
-8-->/Users/jodaehyeon/Desktop/2021 1학기/졸업프로젝트/GraduationProject/opencv/java/AndroidManifest.xml
+8-->C:\Users\EO\Desktop\lec\GraduationProject\GraduationProject\opencv\java\AndroidManifest.xml
 9        android:targetSdkVersion="30" />
-9-->/Users/jodaehyeon/Desktop/2021 1학기/졸업프로젝트/GraduationProject/opencv/java/AndroidManifest.xml
+9-->C:\Users\EO\Desktop\lec\GraduationProject\GraduationProject\opencv\java\AndroidManifest.xml
 10
 11</manifest>

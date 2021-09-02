@@ -10,4 +10,5 @@
     <color name="transparent_70">#B3000000</color>
     <color name="park_section_alpha_color">#33000000</color>
     <color name="park_section_alpha_find_color">#FF000000</color>
+    <color name="exit_accept_red_color">#FAFF5252</color>
 </resources>
