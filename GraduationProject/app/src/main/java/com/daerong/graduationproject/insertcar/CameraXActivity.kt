@@ -3,6 +3,7 @@ package com.daerong.graduationproject.insertcar
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.hardware.Camera.open
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -27,7 +28,9 @@ import com.daerong.graduationproject.data.CameraX
 import com.daerong.graduationproject.databinding.ActivityCameraXBinding
 import com.daerong.graduationproject.viewmodel.CameraXViewModel
 import kotlinx.coroutines.Job
+import org.opencv.videoio.VideoCapture
 import java.io.File
+import java.nio.channels.AsynchronousFileChannel.open
 import java.text.SimpleDateFormat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -181,6 +184,7 @@ class CameraXActivity : AppCompatActivity() {
                 .also {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
+
             imageCapture = ImageCapture.Builder().build()
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {

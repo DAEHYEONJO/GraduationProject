@@ -1,5 +1,6 @@
 package com.daerong.graduationproject
 
+import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.bumptech.glide.Glide
@@ -12,6 +13,5 @@ class TestActivity : AppCompatActivity() {
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //Glide.with(this).asGif().load(R.drawable.loading).into(binding.imgView)
     }
 }
