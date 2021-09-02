@@ -310,8 +310,8 @@ class InsertCarActivity : AppCompatActivity() {
     private fun initValuesForDbTest() {
         GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
         insertCarViewModel.run {
-            curCarNum.value = "777다3333"
-            curParkingLotSection.value = "A"
+            curCarNum.value = "666죽4444"
+            curParkingLotSection.value = "G"
 
         }
     }

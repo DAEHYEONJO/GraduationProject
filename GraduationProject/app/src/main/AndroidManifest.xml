@@ -49,15 +49,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
-        <activity android:name=".licenseplate.TestGetNumActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".main.SelectFunctionActivity">
+        <receiver
+            android:name=".service.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
 
-        </activity>
+        <activity android:name=".licenseplate.TestGetNumActivity"></activity>
+        <activity android:name=".main.SelectFunctionActivity"></activity>
 
         <service
             android:name=".service.ExitCarService"
@@ -79,8 +77,14 @@
 
         <activity
             android:name=".insertcar.InsertCarActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".licenseplate.CheckNumberAcitivity"></activity>
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".licenseplate.CheckNumberAcitivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
