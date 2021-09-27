@@ -2,23 +2,29 @@ package com.daerong.graduationproject.main
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.carlist.CarListFragment
 import com.daerong.graduationproject.data.InsertCar
 import com.daerong.graduationproject.databinding.ActivitySelectFunctionBinding
 import com.daerong.graduationproject.insertcar.InsertCarActivity
 import com.daerong.graduationproject.insertcar.InsertCarInfoFragment
+import com.daerong.graduationproject.radio.RadioFragment
 import com.daerong.graduationproject.service.ExitCarService
 
 
 class SelectFunctionActivity : AppCompatActivity() {
+    private val REQ_RECORD_PERMISSIONS = 212
     lateinit var binding : ActivitySelectFunctionBinding
     val carListFragment = CarListFragment()
+    val radioFragment = RadioFragment()
+    private val permissions = arrayOf(Manifest.permission.RECORD_AUDIO,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySelectFunctionBinding.inflate(layoutInflater)
@@ -32,6 +38,19 @@ class SelectFunctionActivity : AppCompatActivity() {
         }
         initService()
         initBottomNavigation()
+
+        if (!isGranted()){
+            ActivityCompat.requestPermissions(this@SelectFunctionActivity,permissions,REQ_RECORD_PERMISSIONS)
+        }
+    }
+
+    private fun isGranted() : Boolean{
+        permissions.forEach {permission->
+            if (ActivityCompat.checkSelfPermission(this@SelectFunctionActivity,permission)!= PackageManager.PERMISSION_GRANTED){
+                return false
+            }
+        }
+        return true
     }
 
     private fun initBottomNavigation() {
@@ -48,7 +67,9 @@ class SelectFunctionActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 R.id.radio_menu->{
-
+                    val fragment = supportFragmentManager.beginTransaction()
+                    fragment.replace(R.id.main_fragment, radioFragment)
+                    fragment.commit()
                 }
             }
             true
@@ -72,6 +93,28 @@ class SelectFunctionActivity : AppCompatActivity() {
             } else{
                 Log.d("SelectFunctionActivity","intent 없음")
                 Toast.makeText(this,"onNewIntent 전달없음", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode){
+            REQ_RECORD_PERMISSIONS -> {
+                var check = true
+                for (granted in grantResults){
+                    if (granted != PackageManager.PERMISSION_GRANTED){
+                        check = false
+                        break
+                    }
+                }
+                if (!check){
+                    Toast.makeText(this, "녹음 권한을 확인해야 합니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

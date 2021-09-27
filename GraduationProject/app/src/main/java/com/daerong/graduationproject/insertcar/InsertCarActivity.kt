@@ -15,6 +15,7 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -217,6 +218,7 @@ class InsertCarActivity : AppCompatActivity() {
                 //captureCamera()
                 startActivityForResult(Intent(this@InsertCarActivity,CameraXActivity::class.java),REQUEST_CAMERAX)
             }
+            testBtn.visibility = View.GONE
             testBtn.setOnClickListener {
                 val mediaDir = externalMediaDirs.firstOrNull().let {it->
                     File(it, resources.getString(R.string.app_name)).apply {
@@ -307,8 +309,8 @@ class InsertCarActivity : AppCompatActivity() {
     private fun initValuesForDbTest() {
         GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
         insertCarViewModel.run {
-            curCarNum.value = "666죽4444"
-            curParkingLotSection.value = "G"
+            curCarNum.value = "777가8888"
+            curParkingLotSection.value = "A"
 
         }
     }
