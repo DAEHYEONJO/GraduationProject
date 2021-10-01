@@ -1,5 +1,7 @@
 package com.daerong.graduationproject.licenseplate
 
+import java.util.concurrent.TimeUnit
+
 fun main() {
     val regex = """[^가-힣0-9]""".toRegex()
     var result = "끄겜겜"
@@ -29,6 +31,18 @@ fun main() {
     }
 
     val resultStr = result.substring(startIndex,lastIndex+1)
-    print(resultStr)
+    println(resultStr)
+
+
+    var lastTimeStamp = 0L
+    while (true) {
+        var curTime = System.currentTimeMillis()
+        if (curTime-lastTimeStamp>=TimeUnit.SECONDS.toMillis(1)){
+            println(lastTimeStamp)
+            println(TimeUnit.SECONDS.toMillis(1))
+            lastTimeStamp = curTime
+        }
+
+    }
 
 }
