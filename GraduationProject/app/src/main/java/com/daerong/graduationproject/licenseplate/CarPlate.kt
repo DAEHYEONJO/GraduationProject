@@ -30,6 +30,7 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
     private var plateImgList = ArrayList<Mat>()//0
     private var plateImgInfo = ArrayList<PlateImgInfo>()//0
 
+
     companion object {
         private const val MIN_AREA = 80
         private const val MIN_WIDTH = 2
@@ -47,7 +48,7 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
         private const val PLATE_HEIGHT_PADDING = 1.5//번호판영역으로 측정된 세로길 1.5배해주기
     }
 
-    suspend fun initImg() {
+    suspend fun initImg(): HashSet<String>? {
         Log.d("originimg_addr","${imgOrigin!!.dataAddr().toString()} name : $threadId")
         imgGray = Mat()
         imgBlurred = Mat()
@@ -67,12 +68,12 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
             imgChannel = imgOrigin!!.channels()
             //bgr to gray img
             Imgproc.cvtColor(imgOrigin, imgGray, Imgproc.COLOR_BGR2GRAY)//BGR img to GRAY img
-            //val bitMapGray = Bitmap.createBitmap(
-            //    imgGray.cols(),
-            //    imgGray.rows(),
-            //    Bitmap.Config.ARGB_8888
-            //)
-            //Utils.matToBitmap(imgGray, bitMapGray)
+            val bitMapGray = Bitmap.createBitmap(
+                imgGray.cols(),
+                imgGray.rows(),
+                Bitmap.Config.ARGB_8888
+            )
+            Utils.matToBitmap(imgGray, bitMapGray)
             //plateImgAdapter.list.add(CarNumBitmap(bitMapGray))
             //plateImgAdapter.notifyDataSetChanged()
 
@@ -198,8 +199,9 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
             //plateImgAdapter.notifyDataSetChanged()
 
             rotateContours()
-            lastThresholding()
+            return lastThresholding()
         }
+        return null
     }
 
     private fun findFinalContour(contours: HashMap<Int, ContoursInfo>) : ArrayList<ArrayList<Int>>{
@@ -326,7 +328,8 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
         }
     }
 
-    private fun lastThresholding(){
+    private fun lastThresholding() : HashSet<String> {
+        val carNumResult : HashSet<String> = HashSet()
         for (plateImg in plateImgList){
             Imgproc.resize(plateImg, plateImg, Size(0.0, 0.0), 1.6, 1.6, Imgproc.INTER_CUBIC)//속도느리면 linear보간으로 바꾸기
 //            val bitMapImgResized = Bitmap.createBitmap(
@@ -403,8 +406,11 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
                 //plateImgAdapter.list.add(CarNumBitmap(bitMapImgResult, utF8Text + " imgsubmat"))
                 //plateImgAdapter.notifyDataSetChanged()
                 Log.d("licenseplate_carnum", "carnumNoFilter_img_resized : ${(utF8Text)}")
-                if (isCorrectNum(getOcrString(utF8Text)))
-                    Log.d("licenseplate_carnum", "img resized : ${getOcrString(utF8Text)}")
+                if (isCorrectNum(getOcrString(utF8Text))){
+                    val result = getOcrString(utF8Text)
+                    Log.d("licenseplate_carnum_filtered", "img resized : ${result}")
+                    carNumResult.add(result)
+                }
             }
 
             Imgproc.GaussianBlur(imgResult, imgResult, Size(3.0, 3.0), 0.0)
@@ -426,8 +432,11 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
                 Log.d("licenseplate_carnum", "carnumNoFilter_img_gaussian+thresh : ${(utF8Text)}")
                 //plateImgAdapter.list.add(CarNumBitmap(last2, utF8Text + " imgsubmat"))
                 //plateImgAdapter.notifyDataSetChanged()
-                if (isCorrectNum(getOcrString(utF8Text)))
-                    Log.d("licenseplate_carnum", "img gaussian+thresh : ${getOcrString(utF8Text)}")
+                if (isCorrectNum(getOcrString(utF8Text))){
+                    val result = getOcrString(utF8Text)
+                    Log.d("licenseplate_carnum_filtered", "img gaussian+thresh : ${result}")
+                    carNumResult.add(result)
+                }
             }
 
             Core.copyMakeBorder(
@@ -449,10 +458,14 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
                 Log.d("licenseplate_carnum", "carnumNoFilter_img_last : ${(utF8Text)}")
                 //plateImgAdapter.list.add(CarNumBitmap(last, utF8Text + " imgsubmat"))
                 //plateImgAdapter.notifyDataSetChanged()
-                if (isCorrectNum(getOcrString(utF8Text)))
-                    Log.d("licenseplate_carnum", "img last : ${getOcrString(utF8Text)}")
+                if (isCorrectNum(getOcrString(utF8Text))){
+                    val result = getOcrString(utF8Text)
+                    Log.d("licenseplate_carnum_filtered", "img last : ${result}")
+                    carNumResult.add(result)
+                }
             }
         }
+        return carNumResult
     }
 
 
@@ -478,6 +491,7 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
 
     private fun isCorrectNum(str: String): Boolean {
         var korCount = 0
+        //숫자 2개 or 3개, 한글, 숫자 4개 조합인지 확인하기
         if (str.length in 7..8) {
             str.forEach {
                 if (!it.isLetterOrDigit()) return false

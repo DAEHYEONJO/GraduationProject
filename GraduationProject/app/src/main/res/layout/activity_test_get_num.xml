@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,24 +7,69 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".licenseplate.TestGetNumActivity">
-<!--    <org.opencv.android.JavaCameraView-->
-<!--        android:id="@+id/camera_view2"-->
-<!--        android:visibility="visible"-->
-<!--        app:camera_id="any"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="500dp"/>-->
     <androidx.camera.view.PreviewView
         android:id="@+id/view_finder"
         android:layout_width="match_parent"
-        android:layout_height="300dp"/>
-    <Button
-        android:id="@+id/img_caputre_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="capture"/>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/plate_img_recycler_view"
-        android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent_70"/>
+    <com.daerong.graduationproject.licenseplate.CustomViewRect
+        android:id="@+id/custom_view_rect"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_marginTop="50dp"
+        android:text="사각형 안에 번호판을 위치시키세요!"/>
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/result_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/car_num_info_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_marginTop="100dp"
+            android:text="차량번호가 맞습니까? 선택하여 주십시오"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/car_num_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/car_num_info_text"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:id="@+id/restart_layout"
+            android:layout_below="@id/car_num_recycler_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:tint="@color/white"
+                android:src="@drawable/ic_baseline_refresh_24"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/white"
+                android:text="다시 스캔하기"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

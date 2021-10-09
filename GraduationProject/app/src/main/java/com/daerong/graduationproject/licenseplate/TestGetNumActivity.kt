@@ -7,6 +7,7 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.daerong.graduationproject.R
+import com.daerong.graduationproject.adapter.CarNumResultAdapter
 import com.daerong.graduationproject.adapter.PlateImgAdapter
 import com.daerong.graduationproject.data.CarNumBitmap
 import com.daerong.graduationproject.data.ContoursInfo
@@ -58,8 +61,7 @@ class TestGetNumActivity : AppCompatActivity() {
 
     private var tessBaseAPI: TessBaseAPI? = null
 
-    private lateinit var plateImgAdapter: PlateImgAdapter
-
+    private lateinit var carNumResultAdapter: CarNumResultAdapter
     private lateinit var mLoaderCallback: BaseLoaderCallback
     private val permissions = arrayOf(android.Manifest.permission.CAMERA)
 
@@ -97,11 +99,19 @@ class TestGetNumActivity : AppCompatActivity() {
         setContentView(binding!!.root)
         OpenCVLoader.initDebug()
         initWindow()
+        initRecyclerView()
         initPermissions()
         initTessBaseApi()
-        initRecyclerView()
         initActivityBtns()
         //initImg()
+    }
+
+    private fun initRecyclerView() {
+        carNumResultAdapter = CarNumResultAdapter(ArrayList<String>())
+        binding!!.carNumRecyclerView.run {
+            adapter = carNumResultAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false)
+        }
     }
 
     private fun initWindow() {
@@ -120,9 +130,6 @@ class TestGetNumActivity : AppCompatActivity() {
 
     private fun initActivityBtns() {
         binding!!.apply {
-            imgCaputreBtn.setOnClickListener {
-                takePhoto()
-            }
         }
     }
 
@@ -151,6 +158,8 @@ class TestGetNumActivity : AppCompatActivity() {
                 if (curAnalysisTime - lastAnalysisTime >= TimeUnit.SECONDS.toMillis(1)){//1초주기마다 콜백받기
                     Log.d("imageAnalysis","cur :  ${curAnalysisTime.toString()}")
                     //yuv to bitmap
+
+                    imageProxy.setCropRect(android.graphics.Rect(100, 300, 700, 100))
                     val angle = imageProxy.imageInfo.rotationDegrees
                     val yBuffer = imageProxy.planes[0].buffer // Y
                     val vuBuffer = imageProxy.planes[2].buffer // VU
@@ -167,7 +176,26 @@ class TestGetNumActivity : AppCompatActivity() {
                     rotateImage(bitmap, angle.toFloat())
                     CoroutineScope(Dispatchers.Default).launch(CoroutineName("$curAnalysisTime")) {
                         mutex.withLock {
-                            CarPlate(imgOrigin, tessBaseAPI = tessBaseAPI, Thread.currentThread().id).initImg()
+                            val set = CarPlate(imgOrigin, tessBaseAPI = tessBaseAPI, Thread.currentThread().id).initImg()
+                            if (set?.size==0){
+                                Log.e("licenseplate_carnum_filtered","null")
+                            }else{
+                                withContext(Dispatchers.Main){
+                                    carNumResultAdapter.carNumList = ArrayList<String>(set)
+                                    binding!!.run {
+                                        customViewRect.visibility = View.GONE
+                                        resultLayout.visibility = View.VISIBLE
+                                        carNumResultAdapter.notifyDataSetChanged()
+                                        restartLayout.setOnClickListener {
+                                            resultLayout.visibility = View.GONE
+                                            customViewRect.visibility = View.VISIBLE
+                                        }
+                                    }
+                                }
+                            }
+                            /*if (list!=null){
+
+                            }*/
                         }
                     }
 
@@ -327,17 +355,6 @@ class TestGetNumActivity : AppCompatActivity() {
         }
     }
 
-    private fun initRecyclerView() {
-        plateImgAdapter = PlateImgAdapter(ArrayList<CarNumBitmap>())
-        binding!!.plateImgRecyclerView.run {
-            layoutManager = LinearLayoutManager(
-                this@TestGetNumActivity,
-                LinearLayoutManager.VERTICAL,
-                false
-            )
-            adapter = plateImgAdapter
-        }
-    }
 
     private fun getRotateAngle(filePath: String): Float {
         val ei = ExifInterface(filePath)
@@ -848,22 +865,6 @@ class TestGetNumActivity : AppCompatActivity() {
         }
     }
 
-    /*override fun onCameraViewStarted(width: Int, height: Int) {
-        Log.d("onCameraFrame", "onCameraViewStarted")
-    }
-
-    override fun onCameraViewStopped() {
-        Log.d("onCameraFrame", "onCameraViewStopped")
-    }
-
-    override fun onCameraFrame(inputFrame: CameraBridgeViewBase.CvCameraViewFrame?): Mat {
-        Log.d("onCameraFrame", "onCameraFrameCalled")
-        CoroutineScope(Dispatchers.Main).launch {
-            initImg(inputFrame!!.rgba())
-        }
-        return inputFrame!!.rgba()
-    }*/
-
 
 
     fun rotate(src: Mat, angle: Double): Mat{
@@ -889,6 +890,7 @@ class TestGetNumActivity : AppCompatActivity() {
         /*binding?.cameraView2?.disableView()
         binding = null*/
     }
+
 
 
 }
