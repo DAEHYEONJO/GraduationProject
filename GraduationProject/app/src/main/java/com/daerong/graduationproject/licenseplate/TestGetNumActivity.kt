@@ -232,9 +232,7 @@ class TestGetNumActivity : AppCompatActivity() {
             if (curAnalysisTime - lastAnalysisTime >= TimeUnit.SECONDS.toMillis(1)){//1초주기마다 콜백받기
                 Log.d("imageAnalysis","cur :  ${curAnalysisTime.toString()}")
                 //yuv to bitmap
-
                 getOriginImage(imageProxy)
-
                 CoroutineScope(Dispatchers.Default).launch  {
                     mutex.withLock {
                         val carPlateSet = CarPlate(imgOrigin, tessBaseAPI = tessBaseAPI, Thread.currentThread().id).initImg()
