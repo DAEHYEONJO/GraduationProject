@@ -12,64 +12,129 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <RelativeLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent_70"/>
-    <com.daerong.graduationproject.licenseplate.CustomViewRect
-        android:id="@+id/custom_view_rect"
-        android:visibility="visible"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:background="@color/transparent_70">
+        <com.daerong.graduationproject.licenseplate.CustomViewRect
+            android:id="@+id/custom_view_rect"
+            android:visibility="visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:layout_marginTop="50dp"
-        android:text="사각형 안에 번호판을 위치시키세요!"/>
-
-    <RelativeLayout
-        android:visibility="gone"
-        android:id="@+id/result_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
         <TextView
-            android:id="@+id/car_num_info_text"
+            android:id="@+id/title_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="20sp"
-            android:layout_marginTop="100dp"
-            android:text="차량번호가 맞습니까? 선택하여 주십시오"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/car_num_recycler_view"
+            android:layout_marginTop="50dp"
+            android:text="사각형 안에 번호판을 위치시키세요!"/>
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/result_layout"
             android:layout_width="match_parent"
-            android:layout_below="@+id/car_num_info_text"
-            android:layout_height="wrap_content"/>
-        <LinearLayout
-            android:id="@+id/restart_layout"
-            android:layout_below="@id/car_num_recycler_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:tint="@color/white"
-                android:src="@drawable/ic_baseline_refresh_24"/>
+            android:layout_height="match_parent">
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/car_num_info_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:gravity="center"
                 android:textSize="20sp"
-                android:layout_marginLeft="5dp"
-                android:textColor="@color/white"
-                android:text="다시 스캔하기"/>
-        </LinearLayout>
+                android:layout_marginTop="100dp"
+                android:text="차량번호가 맞습니까? 선택하여 주십시오"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/car_num_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_below="@+id/car_num_info_text"
+                android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:id="@+id/restart_layout"
+                android:layout_below="@id/car_num_recycler_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:tint="@color/white"
+                    android:src="@drawable/ic_baseline_refresh_24"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="@color/white"
+                    android:text="다시 스캔하기"/>
+            </LinearLayout>
+        </RelativeLayout>
     </RelativeLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/keyboard_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginTop="100dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="번호판을 입력하세요!"/>
+        <EditText
+            android:id="@+id/keyboard_input_text"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:background="@drawable/background_radius"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/toggle_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="100dp"
+        android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/cirlce_background"
+            android:padding="5dp"
+            android:layout_marginRight="20dp">
+            <ToggleButton
+                android:id="@+id/flash_on_off_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/flash_toggle_btn"
+                android:textOn=""
+                android:textOff=""/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/cirlce_background"
+            android:padding="5dp"
+            android:layout_marginLeft="20dp">
+            <ToggleButton
+                android:id="@+id/camera_or_text_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/keyboard_or_camera_toggle_btn"
+                android:textOn=""
+                android:textOff=""/>
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

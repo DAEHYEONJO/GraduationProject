@@ -48,8 +48,8 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
         private const val PLATE_HEIGHT_PADDING = 1.5//번호판영역으로 측정된 세로길 1.5배해주기
     }
 
-    suspend fun initImg(): HashSet<String>? {
-        Log.d("originimg_addr","${imgOrigin!!.dataAddr().toString()} name : $threadId")
+    suspend fun initImg(): HashSet<String> {
+        Log.d("threadid","${imgOrigin!!.dataAddr().toString()} name : $threadId")
         imgGray = Mat()
         imgBlurred = Mat()
         imgThresh = Mat()
@@ -201,7 +201,7 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
             rotateContours()
             return lastThresholding()
         }
-        return null
+        return HashSet<String>()
     }
 
     private fun findFinalContour(contours: HashMap<Int, ContoursInfo>) : ArrayList<ArrayList<Int>>{
@@ -491,13 +491,18 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
 
     private fun isCorrectNum(str: String): Boolean {
         var korCount = 0
+        var korIndex = 0
         //숫자 2개 or 3개, 한글, 숫자 4개 조합인지 확인하기
         if (str.length in 7..8) {
-            str.forEach {
-                if (!it.isLetterOrDigit()) return false
-                if (it.isLetter()) korCount++
-                if (korCount > 1) return false
+            for ((i,c) in str.withIndex()){
+                if (!c.isLetterOrDigit()) return false
+                if (c.isLetter()) {
+                    korCount++
+                    korIndex = i
+                }
             }
+            if (korCount!=1) return false
+            if (str.substring(korIndex,str.length-1).length!=4) return false
         } else {
             return false
         }
