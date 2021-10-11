@@ -89,13 +89,23 @@
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="20sp"
+            android:layout_marginBottom="10dp"
             android:text="번호판을 입력하세요!"/>
         <EditText
             android:id="@+id/keyboard_input_text"
             android:layout_width="200dp"
             android:layout_height="60dp"
             android:gravity="center"
+            android:maxLines="1"
+            android:maxLength="8"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/background_radius"/>
+        <ImageView
+            android:id="@+id/keyboard_input_ok_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/cirlce_background"
+            android:src="@drawable/ic_baseline_check_circle_24"/>
     </LinearLayout>
 
     <LinearLayout

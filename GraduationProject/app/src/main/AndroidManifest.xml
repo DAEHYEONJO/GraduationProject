@@ -58,11 +58,7 @@
             android:exported="true"></receiver>
 
         <activity android:name=".licenseplate.TestGetNumActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".main.SelectFunctionActivity">
 
@@ -92,7 +88,11 @@
         <activity
             android:name=".insertcar.InsertCarActivity"
             android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity android:name=".licenseplate.CheckNumberAcitivity" />

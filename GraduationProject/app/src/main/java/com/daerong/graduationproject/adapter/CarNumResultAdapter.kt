@@ -8,8 +8,22 @@ import com.daerong.graduationproject.databinding.CarNumResultRawBinding
 class CarNumResultAdapter(var carNumList : ArrayList<String>) :
     RecyclerView.Adapter<CarNumResultAdapter.ViewHolder>() {
 
-    inner class ViewHolder(val binding : CarNumResultRawBinding):RecyclerView.ViewHolder(binding.root){
+    private var listener : OnItemClickListener? = null
 
+    interface OnItemClickListener{
+        fun onClick(carNum : String)
+    }
+
+    fun setOnItemClickListener(listener : OnItemClickListener){
+        this.listener = listener
+    }
+
+    inner class ViewHolder(val binding : CarNumResultRawBinding):RecyclerView.ViewHolder(binding.root){
+        init {
+            binding.carNumText.setOnClickListener {
+                listener?.onClick(carNumList[adapterPosition])
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

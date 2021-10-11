@@ -1,6 +1,7 @@
 package com.daerong.graduationproject.licenseplate
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.media.ExifInterface
@@ -9,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -59,6 +61,7 @@ class TestGetNumActivity : AppCompatActivity() {
     private lateinit var cameraInfo: CameraInfo
     private lateinit var imageAnalysis: ImageAnalysis
     val mutex = Mutex()
+    private var resultCarNum : String? = null
 
 
     companion object {
@@ -72,13 +75,13 @@ class TestGetNumActivity : AppCompatActivity() {
         setContentView(binding!!.root)
         OpenCVLoader.initDebug()
         initWindow()
-        initToggleBtn()
+        initBtns()
         initRecyclerView()
         initPermissions()
         initTessBaseApi()
     }
 
-    private fun initToggleBtn() {
+    private fun initBtns() {
         binding!!.run {
             flashOnOffBtn.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (isChecked){
@@ -92,10 +95,18 @@ class TestGetNumActivity : AppCompatActivity() {
                     mainLayout.visibility = View.GONE
                     keyboardInputLayout.visibility = View.VISIBLE
                     imageAnalysis.clearAnalyzer()
+                    showSoftInput()
                 }else{
                     keyboardInputLayout.visibility = View.GONE
                     mainLayout.visibility = View.VISIBLE
                     setImageAnalysis()
+                }
+            }
+            keyboardInputOkBtn.setOnClickListener {
+                if (isCorrectNum(keyboardInputText.text.toString())){
+                    intent.putExtra("carNumResult",keyboardInputText.text.toString())
+                    setResult(1012,intent)
+                    finish()
                 }
             }
         }
@@ -120,8 +131,15 @@ class TestGetNumActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+    }
+
+    private fun showSoftInput() {
+        binding!!.keyboardInputText.requestFocus()
+        val inputMethodManager =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(binding!!.keyboardInputText, 0)
     }
 
     @SuppressLint("UnsafeOptInUsageError", "RestrictedApi")
@@ -227,7 +245,19 @@ class TestGetNumActivity : AppCompatActivity() {
                                 binding!!.run {
                                     customViewRect.visibility = View.GONE
                                     resultLayout.visibility = View.VISIBLE
-                                    carNumResultAdapter.notifyDataSetChanged()
+                                    carNumResultAdapter.run {
+                                        notifyDataSetChanged()
+                                        setOnItemClickListener(object : CarNumResultAdapter.OnItemClickListener{
+                                            override fun onClick(carNum: String) {
+                                                Log.d("selected_car_num",carNum)
+
+                                                intent.putExtra("carNumResult",carNum)
+                                                setResult(1012,intent)
+                                                finish()
+
+                                            }
+                                        })
+                                    }
                                     restartLayout.setOnClickListener {
                                         setImageAnalysis()
                                         resultLayout.visibility = View.GONE
@@ -377,6 +407,26 @@ class TestGetNumActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun isCorrectNum(str: String): Boolean {
+        var korCount = 0
+        var korIndex = 0
+        //숫자 2개 or 3개, 한글, 숫자 4개 조합인지 확인하기
+        if (str.length in 7..8) {
+            for ((i,c) in str.withIndex()){
+                if (!c.isLetterOrDigit()) return false
+                if (c.isLetter()) {
+                    korCount++
+                    korIndex = i
+                }
+            }
+            if (korCount!=1) return false
+            if (str.substring(korIndex,str.length-1).length!=4) return false
+        } else {
+            return false
+        }
+        return true
     }
 
 
