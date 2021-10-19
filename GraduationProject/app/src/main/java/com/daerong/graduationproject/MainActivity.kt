@@ -61,7 +61,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sectionList = arrayOf(binding.a,binding.b,binding.c,binding.d,binding.e,binding.f,binding.g,binding.h,binding.i).toMutableList()
+        sectionList = arrayOf(binding.a, binding.b, binding.c, binding.d,
+            binding.e, binding.f, binding.g, binding.h, binding.i).toMutableList()
         initRecyclerView()
         binding.beaconBtn.setOnClickListener {
             init()

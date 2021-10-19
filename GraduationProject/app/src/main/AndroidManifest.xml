@@ -13,15 +13,23 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="false" />
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus"  android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front.autofocus"
+        android:required="false" />
 
     <queries>
 
@@ -52,31 +60,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
-        <receiver
-            android:name=".service.GeofenceBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true"></receiver>
-
-        <activity android:name=".licenseplate.TestGetNumActivity">
+        <activity android:name=".beacon.TestBeaconActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".main.SelectFunctionActivity">
+
+        <receiver
+            android:name=".service.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".licenseplate.TestGetNumActivity">
 
         </activity>
-
+        <activity android:name=".main.SelectFunctionActivity"></activity>
 
         <service
             android:name=".service.ExitCarService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".TestActivity" >
-
-        </activity>
+        <activity android:name=".TestActivity"></activity>
         <activity android:name=".insertcar.CameraXActivity" />
 
         <provider
@@ -91,12 +98,8 @@
 
         <activity
             android:name=".insertcar.InsertCarActivity"
-            android:screenOrientation="portrait">
-
-        </activity>
-
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".licenseplate.CheckNumberAcitivity" />
-
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
