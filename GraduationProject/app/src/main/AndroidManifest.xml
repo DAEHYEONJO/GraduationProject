@@ -61,11 +61,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
         <activity android:name=".beacon.TestBeaconActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity android:name=".licenseplate.TestGetNumActivity">
+
         </activity>
 
         <receiver
@@ -73,9 +71,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".licenseplate.TestGetNumActivity">
-
-        </activity>
         <activity android:name=".main.SelectFunctionActivity"></activity>
 
         <service
@@ -99,6 +94,7 @@
         <activity
             android:name=".insertcar.InsertCarActivity"
             android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait">
         <activity android:name=".licenseplate.CheckNumberAcitivity" />
 
         <meta-data
