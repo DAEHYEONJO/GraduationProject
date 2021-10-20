@@ -60,7 +60,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
-        <activity android:name=".beacon.TestBeaconActivity">
+        <activity android:name=".beacon.TestBeaconActivity"/>
 
         <activity android:name=".licenseplate.TestGetNumActivity">
 
