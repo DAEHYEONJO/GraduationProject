@@ -60,7 +60,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
-        <activity android:name=".beacon.TestBeaconActivity"/>
+
 
         <activity android:name=".licenseplate.TestGetNumActivity">
 
@@ -71,7 +71,12 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".main.SelectFunctionActivity"></activity>
+        <activity android:name=".main.SelectFunctionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".service.ExitCarService"

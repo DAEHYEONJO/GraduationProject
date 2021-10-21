@@ -3,6 +3,7 @@ package com.daerong.graduationproject.beacon
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import com.daerong.graduationproject.insertcar.InsertCarActivity
 import com.minew.beaconset.BluetoothState
 import com.minew.beaconset.MinewBeacon
 import com.minew.beaconset.MinewBeaconManager
@@ -10,9 +11,11 @@ import com.minew.beaconset.MinewBeaconManagerListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class BeaconSetting(var context: Context, var activity: TestBeaconActivity) {
+class BeaconSetting(var context: Context, var activity: InsertCarActivity) {
     val MAX_BEACON_SECOND = 10
     val MAX_DISTANCE = 100.24f
+
+    val sectionList = arrayOf("A", "B", "C", "D")
 
     private lateinit var mMinewBeaconManager : MinewBeaconManager
 
@@ -119,8 +122,8 @@ class BeaconSetting(var context: Context, var activity: TestBeaconActivity) {
                 beaconResult.add(MAX_DISTANCE)
             }
         }
-
-        activity.getResult(beaconResult)
+        val idx = beaconResult.indexOf(beaconResult.minOrNull())
+        activity.insertCarViewModel.curParkingLotSection.value = sectionList[idx]
     }
 
 

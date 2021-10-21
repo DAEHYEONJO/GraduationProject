@@ -18,7 +18,7 @@ class TestBeaconActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTestBeaconBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        beaconsetting = BeaconSetting(applicationContext, this)
+        //beaconsetting = BeaconSetting(applicationContext, this)
         PermissionCheck(this).requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION,1)
         initBtn()
     }
