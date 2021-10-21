@@ -26,6 +26,7 @@ import androidx.lifecycle.Observer
 import com.daerong.graduationproject.R
 import com.daerong.graduationproject.adapter.CustomInfoWindowAdapter
 import com.daerong.graduationproject.application.GlobalApplication
+import com.daerong.graduationproject.beacon.BeaconSetting
 import com.daerong.graduationproject.data.CameraX
 import com.daerong.graduationproject.data.DistName
 import com.daerong.graduationproject.data.InsertCar
@@ -89,7 +90,7 @@ class InsertCarActivity : AppCompatActivity() {
 
     private lateinit var markMap: HashMap<LatLng,Marker>
 
-    private val insertCarViewModel : InsertCarViewModel by viewModels<InsertCarViewModel>()
+    val insertCarViewModel : InsertCarViewModel by viewModels<InsertCarViewModel>()
     private val db = Firebase.firestore
 
     private val parkingLotMap = HashMap<LatLng,ParkingLot>()//db에서 가져올때 viewmodel 초기화 용도 변수
@@ -98,6 +99,8 @@ class InsertCarActivity : AppCompatActivity() {
     private lateinit var mCurrentPhotoPath : String
     private var curInfoWindowPlace : LatLng? = null
 
+    lateinit var beaconsetting: BeaconSetting
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInsertCarBinding.inflate(layoutInflater)
@@ -105,7 +108,7 @@ class InsertCarActivity : AppCompatActivity() {
         val actionBar = supportActionBar
         actionBar?.hide()
         setContentView(binding.root)
-
+        beaconsetting = BeaconSetting(applicationContext, this)
 
         if (isGranted()){
             initMap()
@@ -113,6 +116,7 @@ class InsertCarActivity : AppCompatActivity() {
         }else{
             ActivityCompat.requestPermissions(this@InsertCarActivity,permissions,REQ_PERMISSION)
         }
+        beaconsetting.start()
     }
 
     private fun viewModelFunction() {
@@ -308,11 +312,7 @@ class InsertCarActivity : AppCompatActivity() {
 
     private fun initValuesForDbTest() {
         GlobalApplication.prefs.setString("id","jmkqpt@hanmail.net")//
-        insertCarViewModel.run {
-            curCarNum.value = "777가8888"
-            curParkingLotSection.value = "A"
 
-        }
     }
 
     private fun insertCurCar() {
@@ -366,6 +366,7 @@ class InsertCarActivity : AppCompatActivity() {
                                         Log.e("insertCurCar","fail ${it.toString()}")
                                     }
                             savePhotos()
+                            finish()
                         }else{
                             Toast.makeText(this@InsertCarActivity, "동일 차량 존재", Toast.LENGTH_SHORT).show()
                         }
