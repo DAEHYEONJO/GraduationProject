@@ -22,7 +22,7 @@ class MyBottomSheetDialog(private val carData: InsertCar) : BottomSheetDialogFra
         super.onCreateView(inflater, container, savedInstanceState)
         binding = BottomSheetLayoutBinding.inflate(layoutInflater, container, false)
         binding.carNumberView.text = carData.carNum
-        //binding.destinationView.text = "신공학관"
+        binding.destinationView.text = "요거프레소"
         binding.parkingLotView.text = "${carData.parkingLotName} ${carData.parkingSection}구역"
         binding.exitCompleteBtn.setOnClickListener {
             Toast.makeText(context, "출차 완료 버튼 클릭", Toast.LENGTH_SHORT).show()
@@ -40,7 +40,7 @@ class MyBottomSheetDialog(private val carData: InsertCar) : BottomSheetDialogFra
                     val num = parking["curCarCount"].toString().toInt()
                     parkRef.update("curCarCount", num-1)
                 }
-                docRef.delete()
+                docRef.update("approachStatus", true)
             }
 
             dismiss()

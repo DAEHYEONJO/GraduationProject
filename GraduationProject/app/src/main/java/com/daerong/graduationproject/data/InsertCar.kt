@@ -12,4 +12,5 @@ data class InsertCar(var parkingLotName: String = "주차장 미선택"
 //차량상태
 // 0 : 출차선택된상태, 1 : 출차대기중, 2 : 입차, 3 : 아무것도아닌상태
 {
+
 }
