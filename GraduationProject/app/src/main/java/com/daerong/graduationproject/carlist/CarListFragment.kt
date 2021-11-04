@@ -170,7 +170,7 @@ class CarListFragment : Fragment() {
                         Log.d("listsnapshot", "New Car: ${doc.document.data}")
                         // 입차 상태 or 출차 대기 상태로 들어오는 경우
                         val status = data["carStatus"].toString().toInt()
-                        if(status == 2){
+                        if(status == 2){    // 입차된 경우
                             adapter.items.add(
                                 InsertCar(
                                     parkingLotName = data["parkingLotName"].toString(),
@@ -183,7 +183,7 @@ class CarListFragment : Fragment() {
                             )
                             adapter.notifyItemInserted(adapter.itemCount-1)
                         }
-                        else if(status == 1){
+                        else if(status == 1){   // 출차 대기된 경우
                             adapter.items.add(0,
                                 InsertCar(
                                     parkingLotName = data["parkingLotName"].toString(),
@@ -235,7 +235,7 @@ class CarListFragment : Fragment() {
                     }
                     DocumentChange.Type.REMOVED -> {
                         Log.d("listsnapshot", "Removed Car: ${doc.document.data}")
-                        // 정상적이라면 이미 리스트에 없어야 함
+
                     }
                 }
             }
