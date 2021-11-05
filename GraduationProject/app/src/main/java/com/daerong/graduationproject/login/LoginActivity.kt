@@ -63,17 +63,17 @@ class LoginActivity : AppCompatActivity() {
                     showDiaglog()
                 }
             }
-            logoutBtn.setOnClickListener {
-                kakaoLogout()
-            }
-
-            getBtn.setOnClickListener {
-                val id = myPreference.getString("id","")
-                Log.i("KakaoLogin", "curUser : $id")
-            }
-            deleteBtn.setOnClickListener {
-                myPreference.deleteString("id")
-            }
+//            logoutBtn.setOnClickListener {
+//                kakaoLogout()
+//            }
+//
+//            getBtn.setOnClickListener {
+//                val id = myPreference.getString("id","")
+//                Log.i("KakaoLogin", "curUser : $id")
+//            }
+//            deleteBtn.setOnClickListener {
+//                myPreference.deleteString("id")
+//            }
         }
     }
 

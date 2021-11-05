@@ -9,6 +9,24 @@
     android:gravity="center"
     tools:context=".login.LoginActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="100dp"
+        android:text="17조 심플발렛"/>
+
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:padding="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/cirlce_background_yellow"
+        android:src="@drawable/car"/>
+
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="300dp"
@@ -27,17 +45,6 @@
             android:layout_weight="1"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/get_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="getSP" />
-
-    <Button
-        android:id="@+id/delete_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="deleteSP" />
 
 
     <ImageView
@@ -46,10 +53,5 @@
         android:layout_height="wrap_content"
         android:src="@drawable/kakao_login_medium_wide"/>
 
-    <Button
-        android:id="@+id/logout_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="로그아웃" />
 
 </LinearLayout>

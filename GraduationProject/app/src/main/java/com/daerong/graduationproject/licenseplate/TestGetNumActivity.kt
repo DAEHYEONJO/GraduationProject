@@ -38,9 +38,7 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.*
 import java.text.SimpleDateFormat
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import kotlin.math.*
 
 
@@ -182,6 +180,11 @@ class TestGetNumActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+    }
+
+    private fun testThread(){
+        val executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+        val service = ExecutorCompletionService<Set<String>>(executorService)
     }
 
     private fun setImageAnalysis(){

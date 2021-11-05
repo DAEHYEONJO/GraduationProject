@@ -71,7 +71,12 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".main.SelectFunctionActivity"></activity>
+        <activity android:name=".main.SelectFunctionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".service.ExitCarService"
@@ -107,7 +112,9 @@
             android:name="com.kakao.sdk.AppKey"
             android:value="@string/kakao_native_app_key" />
 
-        <activity android:name=".login.LoginActivity" />
+        <activity android:name=".login.LoginActivity" >
+
+        </activity>
         <activity android:name=".MainActivity2" />
         <activity android:name=".TestDrawActivity" />
         <activity android:name=".MainActivity" />

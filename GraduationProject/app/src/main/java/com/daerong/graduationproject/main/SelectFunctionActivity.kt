@@ -66,11 +66,11 @@ class SelectFunctionActivity : AppCompatActivity() {
                     val intent = Intent(this, InsertCarActivity::class.java)
                     startActivity(intent)
                 }
-                R.id.radio_menu->{
+                /*R.id.radio_menu->{
                     val fragment = supportFragmentManager.beginTransaction()
                     fragment.replace(R.id.main_fragment, radioFragment)
                     fragment.commit()
-                }
+                }*/
             }
             true
         }

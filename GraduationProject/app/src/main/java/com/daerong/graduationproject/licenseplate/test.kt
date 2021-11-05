@@ -1,5 +1,13 @@
 package com.daerong.graduationproject.licenseplate
 
+import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 private fun getOcrString(str: String): String {
@@ -38,6 +46,27 @@ private fun isCorrectNum(str: String): Boolean {
 }
 
 fun main() {
-    print(getOcrString("룰1223라2333"))
-    print(isCorrectNum(getOcrString("룰1223라2333")))
+
+    val myRunnable = MyRunnable()
+    val t = Thread(myRunnable)
+    t.start()
+    println("${Thread.currentThread().name}")
+}
+
+class MyRunnable : Runnable{
+    val mutex = Mutex()
+    override fun run() {
+        val scope = CoroutineScope(Dispatchers.Default)
+        for (i in 0 .. 100){
+            scope.launch {
+                println("${Thread.currentThread().name } $i")
+                Thread.sleep(1000)
+            }
+        }
+    }
+}
+
+fun fibonacci(x : Int):Int{
+    if (x == 1 || x == 2) return 1
+    return fibonacci(x-1) + fibonacci(x-2)
 }

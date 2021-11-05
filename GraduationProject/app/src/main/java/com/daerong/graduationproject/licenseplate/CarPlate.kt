@@ -297,6 +297,11 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
                 Point(plateCx, plateCy),
                 imgCropped
             )
+            val bitMapImgResult = Bitmap.createBitmap(
+                imgCropped.width().toInt(),
+                imgCropped.height().toInt(), Bitmap.Config.ARGB_8888
+            )
+            Utils.matToBitmap(imgCropped, bitMapImgResult)
 
             // 가로/세로 비율로 번호판 아닌것 같은것을 걸러내기
             val imgCroppedWidth = imgCropped.width().toDouble()
