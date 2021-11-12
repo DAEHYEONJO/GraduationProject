@@ -470,6 +470,7 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
 
 
     private fun getOcrString(str: String): String {
+        return "49하4855"
         val regex = """[^가-힣0-9]""".toRegex()
         val result = str.replace(regex, "")
         var startIndex = 0
@@ -486,7 +487,6 @@ class CarPlate(var imgOrigin : Mat?=null, var tessBaseAPI: TessBaseAPI? = null, 
                 break
             }
         }
-        return result.substring(startIndex, lastIndex + 1)
     }
 
     private fun isCorrectNum(str: String): Boolean {

@@ -37,14 +37,10 @@ class CarListFragment : Fragment() {
         private const val LOCATIONS_REQUEST_CODE: Int = 199
     }
     private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-    private val geofenceList : MutableList<Geofence> by lazy {
-        mutableListOf(getGeofence("신공학관",Pair(37.54093927558642, 127.07933376994532)))
-    }
-    val geofencingClient : GeofencingClient by lazy {
-        LocationServices.getGeofencingClient(requireContext())
-    }
 
-    lateinit var geofencePendingIntent : PendingIntent
+
+
+
     //복사변수
 
     lateinit var binding: FragmentCarListBinding
@@ -69,39 +65,6 @@ class CarListFragment : Fragment() {
         Toast.makeText(requireContext(), "안녕 나야 ", Toast.LENGTH_SHORT).show()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun addGeofences(carNum : String){
-        val pendingIntent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
-        pendingIntent.putExtra("carNum",carNum)
-        geofencePendingIntent = PendingIntent.getBroadcast(requireContext(),0,pendingIntent,PendingIntent.FLAG_UPDATE_CURRENT)
-
-        geofencingClient.addGeofences(getGeofencingRequest(geofenceList),geofencePendingIntent).run {
-            addOnSuccessListener {
-                Log.d("AddGeofences","add geofence Success")
-                Toast.makeText(requireContext(), "add Success", Toast.LENGTH_SHORT).show()
-            }
-            addOnFailureListener {
-                Log.e("AddGeofences","add geofence fail")
-                Toast.makeText(requireContext(), "add Success", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun getGeofencingRequest(list : List<Geofence>) : GeofencingRequest {
-        return GeofencingRequest.Builder().apply {
-            this.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-            this.addGeofences(list)
-        }.build()
-    }
-
-    private fun getGeofence(reqId : String, geo: Pair<Double,Double>, radius : Float = 100f) : Geofence{
-        return Geofence.Builder()
-                .setRequestId(reqId)
-                .setCircularRegion(geo.first,geo.second,radius)
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build()
-    }
 
     private fun initPermissions() {
         if (isGranted()){
@@ -260,7 +223,6 @@ class CarListFragment : Fragment() {
                             bottomSheet.show(childFragmentManager, bottomSheet.tag)
 
                             //지오펜스추가하기
-                            addGeofences(data.carNum)
 
                         }
                         else{
@@ -272,6 +234,11 @@ class CarListFragment : Fragment() {
         }
 
         binding.recyclerView.adapter = adapter
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("GeofenceBroadcastReceiver","car리스ㅡ트 디스톨이 ")
     }
 
 

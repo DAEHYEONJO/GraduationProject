@@ -14,11 +14,14 @@ import com.google.firebase.ktx.Firebase
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        Toast.makeText(context, "지오펜싱1!!!", Toast.LENGTH_LONG).show()
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        if (geofencingEvent.hasError()){
+        if (geofencingEvent.hasError()) {
             val errorMessage = GeofenceStatusCodes.getStatusCodeString(geofencingEvent.errorCode)
-            Log.d("GeofenceBroadcastReceiver",errorMessage)
+            Log.d("GeofenceBroadcastReceiver", errorMessage)
             return
+        }else{
+            Log.d("GeofenceBroadcastReceiver", "지오펜스에러없음")
         }
 
         val carNum = intent.getStringExtra("carNum")
@@ -29,6 +32,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
             if (carNum != null) {
                 Firebase.firestore.collection("CarList").document(carNum).update("approachStatus",true)
+                return
             }
 
             val triggeringGeofences = geofencingEvent.triggeringGeofences

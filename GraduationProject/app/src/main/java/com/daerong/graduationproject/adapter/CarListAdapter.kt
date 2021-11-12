@@ -34,7 +34,7 @@ class CarListAdapter(val items:ArrayList<InsertCar>): RecyclerView.Adapter<CarLi
         holder.binding.apply {
             licenseView.text = items[position].carNum
             startLocView.text = "${items[position].parkingLotName} ${items[position].parkingSection}구역"
-            //arrivalLocView.text = "건국대학교 신공학관"
+            arrivalLocView.text = "요거프레소"
 
             if(items[position].carStatus == 1){
                 exitAcceptBtn.visibility = View.VISIBLE

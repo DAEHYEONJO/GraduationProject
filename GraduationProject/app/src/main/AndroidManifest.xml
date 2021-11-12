@@ -60,21 +60,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GraduationProject">
+        <service
+            android:name=".service.GeofenceService"
+            android:enabled="true"
+            android:exported="true"></service>
 
-
-        <activity android:name=".licenseplate.TestGetNumActivity">
-
-        </activity>
+        <activity android:name=".licenseplate.TestGetNumActivity"></activity>
 
         <receiver
             android:name=".service.GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="ACTION_GEOFENCE_EVENT" />
+            </intent-filter>
+        </receiver>
 
         <activity android:name=".main.SelectFunctionActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -83,7 +89,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".TestActivity"></activity>
+        <activity android:name=".TestActivity" />
         <activity android:name=".insertcar.CameraXActivity" />
 
         <provider
@@ -98,8 +104,7 @@
 
         <activity
             android:name=".insertcar.InsertCarActivity"
-            android:screenOrientation="portrait"></activity>
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" />
         <activity android:name=".licenseplate.CheckNumberAcitivity" />
 
         <meta-data

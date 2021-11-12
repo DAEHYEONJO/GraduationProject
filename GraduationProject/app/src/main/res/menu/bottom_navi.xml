@@ -10,9 +10,9 @@
         android:enabled="true"
         android:iconTint="@color/white"
         android:title="입차"/>
-    <item android:id="@+id/radio_menu"
+    <!--<item android:id="@+id/radio_menu"
         android:icon="@drawable/ic_baseline_adb_24"
         android:enabled="true"
         android:iconTint="@color/white"
-        android:title="무전"/>
+        android:title="무전"/>-->
 </menu>

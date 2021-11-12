@@ -25,6 +25,8 @@ class SelectFunctionActivity : AppCompatActivity() {
     val carListFragment = CarListFragment()
     val radioFragment = RadioFragment()
     private val permissions = arrayOf(Manifest.permission.RECORD_AUDIO,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    private var beforeItemId = R.id.car_list_menu
+    private var curItemId = R.id.car_list_menu
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySelectFunctionBinding.inflate(layoutInflater)
@@ -55,10 +57,12 @@ class SelectFunctionActivity : AppCompatActivity() {
 
     private fun initBottomNavigation() {
         binding.bottomNavigation.setOnNavigationItemSelectedListener {
+            beforeItemId = curItemId
+            curItemId = it.itemId
             when(it.itemId){
                 R.id.car_list_menu ->{
                     val fragment = supportFragmentManager.beginTransaction()
-                    //fragment.addToBackStack(null)
+                    fragment.addToBackStack(null)
                     fragment.replace(R.id.main_fragment, carListFragment)
                     fragment.commit()
                 }
@@ -66,11 +70,11 @@ class SelectFunctionActivity : AppCompatActivity() {
                     val intent = Intent(this, InsertCarActivity::class.java)
                     startActivity(intent)
                 }
-                R.id.radio_menu->{
+                /*R.id.radio_menu->{
                     val fragment = supportFragmentManager.beginTransaction()
                     fragment.replace(R.id.main_fragment, radioFragment)
                     fragment.commit()
-                }
+                }*/
             }
             true
         }
@@ -117,6 +121,12 @@ class SelectFunctionActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("SelectFunctionActivity", "onResume")
+        binding.bottomNavigation.selectedItemId = beforeItemId
     }
 
 }
