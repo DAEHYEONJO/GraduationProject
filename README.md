@@ -24,3 +24,4 @@
 8. Coroutine
 9. Kotlin
 10. openCV
+11. Kakao Login API
