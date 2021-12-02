@@ -23,3 +23,4 @@
 7. Service
 8. Coroutine
 9. Kotlin
+10. openCV
